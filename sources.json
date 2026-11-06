@@ -1,0 +1,266 @@
+[
+ {
+  "name": "Kamu Hastaneleri GM - Announcements",
+  "url": "https://khgm.saglik.gov.tr/TR-39978/duyurular.html",
+  "type": "tr",
+  "category": "Ministry"
+ },
+ {
+  "name": "Sağlık Yatırımları GM - News",
+  "url": "https://sygm.saglik.gov.tr/TR-30737/haberler.html",
+  "type": "tr",
+  "category": "Ministry"
+ },
+ {
+  "name": "Sağlık Hizmetleri GM - Announcements",
+  "url": "https://shgm.saglik.gov.tr/TR-9269/duyurular.html",
+  "type": "tr",
+  "category": "Ministry"
+ },
+ {
+  "name": "Halk Sağlığı GM - Purchase notices",
+  "url": "https://hsgm.saglik.gov.tr/tr/satin-alma-ilanlari",
+  "type": "list",
+  "category": "Ministry"
+ },
+ {
+  "name": "Sağlık Bilgi Sistemleri GM",
+  "url": "https://sbsgm.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Ministry"
+ },
+ {
+  "name": "KHGM - Purchasing",
+  "url": "https://khgmsatinalmadb.saglik.gov.tr/",
+  "type": "list",
+  "category": "Ministry"
+ },
+ {
+  "name": "KHGM - Medical devices services",
+  "url": "https://khgmtibbicihazdb.saglik.gov.tr/",
+  "type": "list",
+  "category": "Ministry"
+ },
+ {
+  "name": "TÜSEB - Announcements",
+  "url": "https://www.tuseb.gov.tr/tr/duyurular",
+  "type": "list",
+  "category": "Research & grants"
+ },
+ {
+  "name": "TÜBİTAK - Support programs",
+  "url": "https://tubitak.gov.tr/tr/destekler",
+  "type": "list",
+  "category": "Research & grants"
+ },
+ {
+  "name": "TÜBİTAK 4000",
+  "url": "https://4000.tubitak.gov.tr/",
+  "type": "list",
+  "category": "Research & grants"
+ },
+ {
+  "name": "Medikal News",
+  "url": "https://www.medikalnews.com/",
+  "type": "list",
+  "category": "News"
+ },
+ {
+  "name": "Pharma Turkey",
+  "url": "https://pharmaturkey.com/",
+  "type": "list",
+  "category": "News"
+ },
+ {
+  "name": "Sakarya Provincial Health Directorate",
+  "url": "https://sakaryaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kayseri Provincial Health Directorate",
+  "url": "https://kayseriism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Şanlıurfa Provincial Health Directorate",
+  "url": "https://sanliurfaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Diyarbakır Provincial Health Directorate",
+  "url": "https://diyarbakirism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Samsun Provincial Health Directorate",
+  "url": "https://samsunism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Mersin Provincial Health Directorate",
+  "url": "https://mersinism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Gaziantep Provincial Health Directorate",
+  "url": "https://gaziantepism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Adana Provincial Health Directorate",
+  "url": "https://adanaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Konya Provincial Health Directorate",
+  "url": "https://konyaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kocaeli Provincial Health Directorate",
+  "url": "https://kocaeliism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Antalya Provincial Health Directorate",
+  "url": "https://antalyaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Bursa Provincial Health Directorate",
+  "url": "https://bursaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "İzmir Provincial Health Directorate",
+  "url": "https://izmirism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "İstanbul Provincial Health Directorate",
+  "url": "https://istanbulism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Ankara Provincial Health Directorate",
+  "url": "https://ankara.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Hacettepe BAP",
+  "url": "https://bap.hacettepe.edu.tr/tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "İTÜ BAP",
+  "url": "https://bap.itu.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "KTÜ BAP",
+  "url": "https://www.ktu.edu.tr/bapb/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Isparta BAP",
+  "url": "https://bap.isparta.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Uşak BAP",
+  "url": "https://bapbirimi.usak.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "RTE BAP",
+  "url": "https://bapk.erdogan.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Afyon BAP",
+  "url": "https://bap.aku.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Aksaray BAP",
+  "url": "https://bap.aksaray.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "ASBÜ BAP",
+  "url": "https://bap.asbu.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Atatürk BAP",
+  "url": "https://bap.atauni.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "19 Mayıs BAP",
+  "url": "https://bap.omu.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Çukurova BAP",
+  "url": "https://bap.cu.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Erciyes BAP",
+  "url": "https://bap.erciyes.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Akdeniz BAP",
+  "url": "https://bap.akdeniz.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "9 Eylül BAP",
+  "url": "https://bap.deu.edu.tr/tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "Ege BAP",
+  "url": "https://bap.ege.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ },
+ {
+  "name": "SBÜ BAP",
+  "url": "https://bap.sbu.edu.tr/",
+  "type": "list",
+  "category": "University BAP"
+ }
+]

@@ -1,111 +1,135 @@
-"""Konya İl Sağlık Müdürlüğü takip scraper'ı.
-Çalıştırma: python scraper.py  ->  data.json üretir/günceller.
-"""
-import re, json, os, sys, time, datetime
-import requests
+"""Multi-source tender scraper. Reads sources.json + keywords.json, writes data.json."""
+import re, json, os, sys, time, datetime, requests
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-BASE = "https://konyaism.saglik.gov.tr"
-DATA = "data.json"
-HEADERS = {"User-Agent": "Mozilla/5.0"}
-
-# Sayfadaki bölümlerin HTML id'leri (sayfa görünümünden alındı, gerekirse düzeltin)
-SECTIONS = {
-    "Duyurular": "tabmenu56237",
-    "İhale İlanları": "tabmenu56464",
-    "Haberler": "tab_55643",
-}
-
-# Anahtar kelime -> puan (Satış ekibinin sözlüğüyle değiştirilecek)
-KEYWORDS = {
-    "vücut kompozisyon": 60, "vücut sıvı": 60, "bia": 40, "analizör": 30,
-    "diyaliz": 25, "nefroloji": 20, "obezite": 25, "beslenme": 15, "diyet": 15,
-    "sporcu sağlığı": 20, "ftr": 10, "kronik hastalık": 15, "sağlıklı yaşam": 10,
-    "tıbbi cihaz": 30, "satın al": 20, "şartname": 20, "ihale": 15, "alım": 10,
-}
-SECTION_BONUS = {"İhale İlanları": 20}
+H = {"User-Agent": "Mozilla/5.0"}
+TODAY = datetime.date.today()
 MONTHS = "Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık"
-LINK_RE = re.compile(r"/TR-(\d+)/.+\.html")
+LINK_RE = re.compile(r"/TR-(\d+)/[^/]+\.html")
+DATE_RE = re.compile(rf"(\d{{1,2}}) ({MONTHS}) (\d{{4}})")
+DATE_TITLE = re.compile(r"^\d{1,2} \w+ \d{4}$")
+LABELS = {"duyurular": "Announcements", "ihale ilanları": "Tenders", "haberler": "News"}
+KW = json.load(open("keywords.json", encoding="utf-8"))
 
 
 def norm(s):
-    # Türkçe İ/I sorununu önlemek için önce elle çevir
     return s.replace("İ", "i").replace("I", "ı").lower()
 
 
 def score(title, section, files):
     text = norm(title + " " + " ".join(f["name"] for f in files))
-    total = SECTION_BONUS.get(section, 0)
-    for kw, pts in KEYWORDS.items():
-        if re.search(r"(?<!\w)" + re.escape(norm(kw)), text):
-            total += pts
-    return min(total, 100)
+    total, matched = KW["section_bonus"].get(section, 0), []
+    for cat in KW["categories"].values():
+        hits = [t for t in cat["terms"] if re.search(r"(?<!\w)" + re.escape(norm(t)), text)]
+        if hits:
+            total += cat["weight"]
+            matched += hits if cat["weight"] > 0 else []
+    return max(0, min(100, total)), matched
 
 
 def get(url):
-    r = requests.get(url, timeout=20, headers=HEADERS)
+    r = requests.get(url, timeout=20, headers=H)
     r.raise_for_status()
     return r.text
 
 
-def list_items(html):
-    soup = BeautifulSoup(html, "html.parser")
-    found = {}
-    for section, el_id in SECTIONS.items():
-        box = soup.find(id=el_id)
-        if not box:
-            print(f"UYARI: '{el_id}' bulunamadı ({section})", file=sys.stderr)
-            continue
+def add(out, a, base, section):
+    m = LINK_RE.search(a["href"])
+    title = (a.get("title") or a.get_text(" ", strip=True)).strip()
+    if m and title and not DATE_TITLE.match(title):
+        out.setdefault(urljoin(base, a["href"]), (title, section))
+
+
+def tab_label(soup, i):
+    for t in soup.find_all(True):
+        for k in ("href", "data-target", "data-bs-target", "aria-controls"):
+            if (t.get(k) or "").lstrip("#") == i and t.get_text(strip=True):
+                return LABELS.get(norm(t.get_text(strip=True)), t.get_text(strip=True))
+    return "Announcements"
+
+
+def tr_links(soup, base):
+    out = {}
+    for box in soup.find_all(id=re.compile(r"^tab(menu)?_?\d+$")):
+        sec = tab_label(soup, box["id"])
         for a in box.find_all("a", href=True):
-            if LINK_RE.search(a["href"]):
-                link = a["href"] if a["href"].startswith("http") else BASE + a["href"]
-                title = (a.get("title") or a.get_text(strip=True)).strip()
-                if title:
-                    found.setdefault(link, (title, section))
-    return found
+            add(out, a, base, sec)
+    if out:
+        return out
+    allr = {}  # fallback: newest page ids are content, old ids are menu
+    for a in soup.find_all("a", href=True):
+        add(allr, a, base, "Announcements")
+    top = sorted(allr.items(), key=lambda kv: -int(LINK_RE.search(kv[0]).group(1)))[:25]
+    return dict(top)
+
+
+def list_links(soup, base):
+    out = {}
+    for a in soup.find_all("a", href=True):
+        h = a["href"]
+        if h.startswith(("#", "javascript", "mailto", "tel")) or a.find_parent(["nav", "header", "footer"]):
+            continue
+        t = (a.get("title") or a.get_text(" ", strip=True)).strip()
+        if len(t) >= 25 and not DATE_TITLE.match(t):
+            out.setdefault(urljoin(base, h), (t, "Listing"))
+        if len(out) >= 40:
+            break
+    return out
 
 
 def detail(link):
     soup = BeautifulSoup(get(link), "html.parser")
-    text = soup.get_text(" ", strip=True)
-    m = re.search(rf"(\d{{1,2}}) ({MONTHS}) (\d{{4}})", text)
-    published = None
-    if m:
-        month = MONTHS.split("|").index(m.group(2)) + 1
-        published = f"{m.group(3)}-{month:02d}-{int(m.group(1)):02d}"
-    files = [{"name": a.get_text(strip=True) or a["href"].split("/")[-1], "url": a["href"]}
+    pub = None
+    for d, mo, y in DATE_RE.findall(soup.get_text(" ", strip=True)):
+        day = datetime.date(int(y), MONTHS.split("|").index(mo) + 1, int(d))
+        if day <= TODAY:  # skip future dates (deadlines)
+            pub = day.isoformat()
+            break
+    files = [{"name": a.get_text(strip=True) or a["href"].split("/")[-1], "url": urljoin(link, a["href"])}
              for a in soup.find_all("a", href=True) if "/Eklenti/" in a["href"]]
-    return published, files
+    return pub, files
 
 
 def main():
-    old = json.load(open(DATA, encoding="utf-8")) if os.path.exists(DATA) else {"items": []}
-    items = {i["link"]: i for i in old["items"]}
-    today = datetime.date.today().isoformat()
-
-    found = list_items(get(BASE + "/"))
-    if not found:
-        sys.exit("HATA: hiç ilan bulunamadı (site yapısı değişmiş veya erişim engellenmiş olabilir)")
-
-    new = [(l, t, s) for l, (t, s) in found.items() if l not in items][:40]
-    for link, title, section in new:
+    sources = json.load(open("sources.json", encoding="utf-8"))
+    old = json.load(open("data.json", encoding="utf-8")) if os.path.exists("data.json") else {}
+    items = {i["link"]: i for i in old.get("items", [])}
+    health, budget = [], 80  # max detail pages per run; rest is picked up next run
+    for s in sources:
         try:
-            published, files = detail(link)
+            soup = BeautifulSoup(get(s["url"]), "html.parser")
+            found = tr_links(soup, s["url"]) if s["type"] == "tr" else list_links(soup, s["url"])
+            health.append({"name": s["name"], "ok": True, "found": len(found)})
         except Exception as e:
-            print("Detay alınamadı:", link, e, file=sys.stderr)
-            published, files = None, []
-        items[link] = {"title": title, "link": link, "section": section,
-                       "first_seen": today, "published": published, "files": files,
-                       "score": score(title, section, files)}
-        time.sleep(1.5)  # siteye nazik davran
-
-    if not new and os.path.exists(DATA):
-        print("Yeni içerik yok.")
+            health.append({"name": s["name"], "ok": False, "error": str(e)[:100]})
+            continue
+        for link, (title, section) in found.items():
+            if link in items:
+                continue
+            pub, files = None, []
+            if s["type"] == "tr":
+                if budget <= 0:
+                    continue
+                budget -= 1
+                try:
+                    pub, files = detail(link)
+                except Exception:
+                    pass
+                time.sleep(1)
+            sc, matched = score(title, section, files)
+            items[link] = {"title": title, "link": link, "source": s["name"], "category": s["category"],
+                           "section": section, "first_seen": TODAY.isoformat(), "published": pub,
+                           "files": files, "score": sc, "matched": matched}
+        time.sleep(1)
+    rows = sorted(items.values(), key=lambda i: i["published"] or i["first_seen"], reverse=True)[:3000]
+    new = {"items": rows, "sources": health}
+    if new == {"items": old.get("items"), "sources": old.get("sources")}:
+        print("No changes.")
         return
-    ordered = sorted(items.values(), key=lambda i: (i["published"] or i["first_seen"]), reverse=True)
-    json.dump({"updated": datetime.datetime.now().isoformat(timespec="minutes"), "items": ordered},
-              open(DATA, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(f"{len(new)} yeni kayıt eklendi, toplam {len(ordered)}.")
+    new["updated"] = datetime.datetime.utcnow().isoformat(timespec="minutes") + "Z"
+    json.dump(new, open("data.json", "w", encoding="utf-8"), ensure_ascii=False)
+    print(f"{len(rows)} items, {sum(h['ok'] for h in health)}/{len(health)} sources OK")
 
 
 if __name__ == "__main__":

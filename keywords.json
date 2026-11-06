@@ -1,0 +1,97 @@
+{
+ "section_bonus": {
+  "Tenders": 10
+ },
+ "categories": {
+  "product": {
+   "weight": 60,
+   "terms": [
+    "vücut kompozisyon",
+    "vücut analiz",
+    "vücut sıvı",
+    "biyoelektrik",
+    "empedans",
+    "inbody",
+    "body composition",
+    "bia",
+    "bwa",
+    "kas kütlesi",
+    "yağ oranı"
+   ]
+  },
+  "clinical_dept": {
+   "weight": 25,
+   "terms": [
+    "obezite",
+    "beslenme ve diyetetik",
+    "diyetisyen",
+    "diyaliz",
+    "nefroloji",
+    "sporcu sağlığı",
+    "fizik tedavi",
+    "ftr",
+    "rehabilitasyon",
+    "kronik hastalık",
+    "sağlıklı yaşam",
+    "sağlıklı hayat merkez",
+    "diyabet",
+    "geriatri"
+   ]
+  },
+  "purchase_intent": {
+   "weight": 20,
+   "terms": [
+    "satın alınacak",
+    "satın alma",
+    "alım ilanı",
+    "alım ihale",
+    "mal alım",
+    "malzeme alım",
+    "cihaz alım",
+    "teknik şartname",
+    "yaklaşık maliyet",
+    "doğrudan temin",
+    "pazarlık usul",
+    "teklif"
+   ]
+  },
+  "device_generic": {
+   "weight": 15,
+   "terms": [
+    "tıbbi cihaz",
+    "medikal cihaz",
+    "analizör",
+    "ekipman",
+    "tefrişat"
+   ]
+  },
+  "investment_signal": {
+   "weight": 15,
+   "terms": [
+    "yatırım programı",
+    "yeni hastane",
+    "hastane inşaat",
+    "şehir hastanesi",
+    "ek bina",
+    "sağlık kampüsü"
+   ]
+  },
+  "negative": {
+   "weight": -40,
+   "terms": [
+    "kantin",
+    "kiralama",
+    "sınav sonuç",
+    "kura",
+    "yerleştirme",
+    "atama",
+    "personel alım",
+    "yemek listesi",
+    "iup",
+    "işgücü uyum",
+    "veda programı",
+    "bayram"
+   ]
+  }
+ }
+}

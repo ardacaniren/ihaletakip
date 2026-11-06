@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>İhale Takip Panosu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f6;--card:#fff;--ink:#17202b;--mute:#5d6b7a;--line:#d8dee5;--acc:#0b6b73;--accbg:#e1f0f1;--lo:#9aa6b2;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#10161c;--card:#18212a;--ink:#e8edf2;--mute:#97a5b4;--line:#2b3744;--acc:#4fc3cc;--accbg:#173a3e;--lo:#5c6b7a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,"Malgun Gothic",sans-serif}
+header,main{max-width:980px;margin:0 auto;padding:0 16px}
+header{padding-top:28px}
+h1{font-size:22px;margin:0 0 4px;font-weight:600}
+.sub{color:var(--mute);margin:0 0 18px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
+input[type=search]{flex:1 1 220px}
+label{display:flex;gap:6px;align-items:center;color:var(--mute)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.card{display:grid;grid-template-columns:64px 1fr;gap:14px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--lo);border-radius:6px;padding:14px 16px;margin-bottom:10px}
+.card.hot{border-left-color:var(--acc)}
+.score{font-size:30px;font-weight:600;line-height:1;color:var(--lo);text-align:right;padding-top:2px}
+.hot .score{color:var(--acc)}
+.score small{display:block;font-size:12px;font-weight:400;color:var(--mute);margin-top:4px}
+.title{font-weight:600;margin:0 0 2px;font-size:16px}
+.title a{color:inherit;text-decoration:none}.title a:hover{text-decoration:underline}
+.meta{color:var(--mute);font-size:13px;margin-bottom:8px}
+.ko{margin:8px 0;padding:8px 10px;background:var(--accbg);border-radius:4px;font-size:14px}
+.files a{display:inline-block;margin:0 10px 0 0;font-size:13px;color:var(--acc)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.empty{padding:40px 0;text-align:center;color:var(--mute)}
+@media (max-width:520px){.card{grid-template-columns:48px 1fr}.score{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>İhale Takip Panosu</h1>
+  <p class="sub" id="upd">Yükleniyor…</p>
+  <div class="bar">
+    <input type="search" id="q" placeholder="Başlıkta ara" aria-label="Başlıkta ara">
+    <select id="st" aria-label="Durum"></select>
+    <label><input type="checkbox" id="hot"> Sadece 70 ve üzeri</label>
+  </div>
+</header>
+<main id="list"></main>
+<script>
+const STATUSES=["Yeni fırsat","Şartname öncesi","İhale yayınlandı","Teklif aşaması","Kazanıldı","Kaybedildi"];
+let items=[],saved={};
+try{saved=JSON.parse(localStorage.getItem("status")||"{}")}catch(e){}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const trDate=d=>d?new Date(d).toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"}):"Tarih yok";
+$("st").innerHTML='<option value="">Tüm durumlar</option>'+STATUSES.map(s=>`<option>${s}</option>`).join("");
+
+function setStatus(link,v){saved[link]=v;try{localStorage.setItem("status",JSON.stringify(saved))}catch(e){}render()}
+window.setStatus=setStatus;
+
+function render(){
+  const q=$("q").value.toLocaleLowerCase("tr"),st=$("st").value,hot=$("hot").checked;
+  const rows=items.filter(i=>(!hot||i.score>=70)&&(!st||(saved[i.link]||STATUSES[0])===st)&&i.title.toLocaleLowerCase("tr").includes(q))
+                  .sort((a,b)=>b.score-a.score);
+  $("list").innerHTML=rows.length?rows.map(i=>{
+    const cur=saved[i.link]||STATUSES[0];
+    const files=i.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("");
+    return `<article class="card ${i.score>=70?"hot":""}">
+      <div class="score">${i.score}<small>puan</small></div>
+      <div>
+        <h2 class="title"><a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a></h2>
+        <div class="meta">Konya İl Sağlık Müdürlüğü, ${esc(i.section)}, ${trDate(i.published||i.first_seen)}</div>
+        <div class="ko" lang="ko">한국어 요약: 3줄 요약은 LLM 연동 후 표시됩니다. (구매기관 / 대상 기기 / 예상 일정)</div>
+        <div class="row"><div class="files">${files}</div>
+          <select aria-label="Durum" onchange="setStatus('${esc(i.link)}',this.value)">${STATUSES.map(s=>`<option${s===cur?" selected":""}>${s}</option>`).join("")}</select>
+        </div>
+      </div></article>`}).join(""):'<p class="empty">Bu filtreyle eşleşen ilan yok. Filtreleri gevşetin.</p>';
+}
+["q","st","hot"].forEach(id=>$(id).addEventListener("input",render));
+
+fetch("data.json?"+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{
+  items=d.items;
+  $("upd").textContent=d.updated?`Son güncelleme: ${d.updated.replace("T"," ")}. ${items.length} kayıt.`:"Henüz veri yok.";
+  render();
+}).catch(()=>{$("upd").textContent="data.json okunamadı. Sayfayı dosyadan değil, GitHub Pages veya yerel sunucu (python -m http.server) üzerinden açın."});
+</script>
+</body>
+</html>

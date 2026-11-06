@@ -91,6 +91,32 @@ def detail(link):
     return pub, files
 
 
+def translate(text, tl):
+    """Turkish -> en/ko via Google's free web endpoint (unofficial, may be rate limited)."""
+    r = requests.get("https://translate.googleapis.com/translate_a/single", headers=H, timeout=8,
+                     params={"client": "gtx", "sl": "tr", "tl": tl, "dt": "t", "q": text})
+    r.raise_for_status()
+    return "".join(seg[0] for seg in r.json()[0] if seg and seg[0]).strip()
+
+
+def add_translations(rows, limit=100):
+    """Fill title_en / title_ko for the highest-scoring untranslated items, max `limit` per run."""
+    todo = sorted((i for i in rows if "title_en" not in i or "title_ko" not in i), key=lambda i: -i["score"])[:limit]
+    fails = 0
+    for it in todo:
+        for lang in ("en", "ko"):
+            if "title_" + lang in it:
+                continue
+            try:
+                it["title_" + lang] = translate(it["title"], lang)
+                time.sleep(0.3)
+            except Exception:
+                fails += 1
+        if fails >= 5:
+            print("Translation service not responding, will retry next run.", file=sys.stderr)
+            break
+
+
 def main():
     sources = json.load(open("sources.json", encoding="utf-8"))
     old = json.load(open("data.json", encoding="utf-8")) if os.path.exists("data.json") else {}
@@ -126,6 +152,7 @@ def main():
     items = {l: i for l, i in items.items() if i["source"] in names}  # dropped sources disappear
     for it in items.values():  # re-score everything so keyword edits apply to old items
         it["score"], it["matched"] = score(it["title"], it["section"], it["files"])
+    add_translations(list(items.values()))
     rows = sorted(items.values(), key=lambda i: i["published"] or i["first_seen"], reverse=True)[:3000]
     new = {"items": rows, "sources": health}
     if new == {"items": old.get("items"), "sources": old.get("sources")}:

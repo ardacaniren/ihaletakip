@@ -89,7 +89,20 @@ const KWNAMES={product:"Product terms",clinical_dept:"Clinical departments",purc
 let items=[],sources=[],kw={categories:{}},health={},saved={},shown=50,dirty=new Set(),lang="tr";
 try{saved=JSON.parse(localStorage.getItem("status")||"{}")}catch(e){}
 try{lang=localStorage.getItem("lang")||"tr"}catch(e){}
-const tt=it=>lang==="tr"?it.title:(it["title_"+lang]||it.title);
+let tcache={},tfail=new Set();
+try{tcache=JSON.parse(localStorage.getItem("tcache")||"{}")}catch(e){}
+const tt=it=>lang==="tr"?it.title:(it["title_"+lang]||tcache[lang+"|"+it.link]||it.title);
+async function fillMissing(rows){
+  if(lang==="tr")return;const L=lang;
+  const need=rows.filter(({it})=>!it["title_"+L]&&!tcache[L+"|"+it.link]&&!tfail.has(L+"|"+it.link));
+  if(!need.length)return;let got=0;
+  for(let i=0;i<need.length;i+=6){
+    await Promise.all(need.slice(i,i+6).map(async({it})=>{const k=L+"|"+it.link;
+      try{const r=await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl="+L+"&dt=t&q="+encodeURIComponent(it.title));
+        if(!r.ok)throw 0;const j=await r.json();const t=j[0].map(x=>x[0]).join("").trim();if(!t)throw 0;tcache[k]=t;got++}
+      catch(e){tfail.add(k)}}));
+    if(L!==lang)return}
+  if(got){try{localStorage.setItem("tcache",JSON.stringify(tcache))}catch(e){}renderOpps()}}
 const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"No date";
@@ -114,12 +127,13 @@ function renderOpps(){
   $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i})=>{const cur=saved[it.link]||STATUSES[0];
     return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
     <h2 class="t" lang="${lang}"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(tt(it))}</a></h2>
-    ${lang!=="tr"?`<div class="meta" lang="tr">${it["title_"+lang]?"Turkish original: "+esc(it.title):"Translation pending, showing Turkish"}</div>`:""}
+    ${lang!=="tr"?`<div class="meta" lang="tr">${(it["title_"+lang]||tcache[lang+"|"+it.link])?"Turkish original: "+esc(it.title):(tfail.has(lang+"|"+it.link)?"Translation unavailable, showing Turkish":"Translating…")}</div>`:""}
     <div class="meta">${esc(it.source)}, ${esc(it.section)}, ${fmt(it.published||it.first_seen)}${it.published?"":" (first seen)"}</div>
     ${(it.matched||[]).length?`<div class="note">matched: ${esc(it.matched.join(", "))}</div>`:""}
     ${it.score>=70?'<div class="ko" lang="ko">한국어 요약: not connected yet</div>':""}
     <div class="foot"><div class="files">${it.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div>
     <select aria-label="Status" onchange="setStatus(${i},this.value)">${STATUSES.map(s=>`<option${s===cur?" selected":""}>${s}</option>`).join("")}</select></div></div></article>`}).join(""):'<p class="empty">Nothing matches these filters. Lower the minimum score or clear the search.</p>';
+  fillMissing(rows.slice(0,shown));
 }
 ["q","min","cat","src","st"].forEach(id=>$(id).addEventListener("input",()=>{shown=50;renderOpps()}));$("more").onclick=()=>{shown+=50;renderOpps()};
 

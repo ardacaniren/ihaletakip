@@ -122,6 +122,10 @@ def main():
                            "section": section, "first_seen": TODAY.isoformat(), "published": pub,
                            "files": files, "score": sc, "matched": matched}
         time.sleep(1)
+    names = {s["name"] for s in sources}
+    items = {l: i for l, i in items.items() if i["source"] in names}  # dropped sources disappear
+    for it in items.values():  # re-score everything so keyword edits apply to old items
+        it["score"], it["matched"] = score(it["title"], it["section"], it["files"])
     rows = sorted(items.values(), key=lambda i: i["published"] or i["first_seen"], reverse=True)[:3000]
     new = {"items": rows, "sources": health}
     if new == {"items": old.get("items"), "sources": old.get("sources")}:

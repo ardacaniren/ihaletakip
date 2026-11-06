@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tender Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--red:#800020;--tint:#f7edef;--ink:#231f20;--mute:#6f6769;--line:#ecdcdf;--pencil:#a39a9c;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);background:#fff;font:15px/1.55 "Work Sans",system-ui,sans-serif;border-top:8px solid var(--red)}
+.wrap{max-width:980px;margin:0 auto;padding:0 18px 60px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-top:22px}
+h1{margin:0;font-size:30px;font-weight:600;letter-spacing:-.02em}
+.stamp{font:700 22px "Caveat",cursive;color:var(--red);border:2.5px solid var(--red);padding:0 12px;border-radius:6px;transform:rotate(4deg);white-space:nowrap}
+.sub{color:var(--mute);margin:2px 0 14px}
+button,input,select{font:inherit;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:4px;padding:6px 11px}
+button{cursor:pointer}button:hover{background:var(--tint)}button:disabled{opacity:.5;cursor:default}
+button.pri{background:var(--red);border-color:var(--red);color:#fff}button.pri:hover{background:#5c0017}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+details{font-size:13px;color:var(--mute);margin:10px 0}details p{max-width:660px;margin:6px 0}
+nav.tabs{display:flex;gap:24px;border-bottom:1.5px solid var(--ink);margin:16px 0 18px}
+nav.tabs button{border:0;border-radius:0;background:none;padding:8px 2px;font-weight:500;color:var(--mute);border-bottom:4px solid transparent;margin-bottom:-1.5px}
+nav.tabs button.on{color:var(--ink);border-bottom-color:var(--red)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}.bar input[type=search]{flex:1 1 200px}
+.count{color:var(--mute);font-size:13px;margin-bottom:4px}
+.item{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.ring{width:54px;height:54px;display:grid;place-items:center;font-weight:600;font-size:18px;border:2px dashed var(--pencil);color:var(--pencil);border-radius:52% 48% 55% 45%/48% 54% 46% 52%;transform:rotate(-5deg)}
+.hot .ring{border:3px solid var(--red);color:var(--red)}
+.t{font-size:16px;font-weight:600;margin:0}.t a{color:inherit;text-decoration:none}.t a:hover{color:var(--red);text-decoration:underline}
+.meta{color:var(--mute);font-size:13px}
+.note{font:600 19px/1.1 "Caveat",cursive;color:var(--red);margin:4px 0}
+.ko{color:var(--mute);font-size:13px;margin:2px 0}
+.files a{margin-right:12px;font-size:13px;color:var(--red)}
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.empty{padding:36px 0;color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;font-weight:600;border-bottom:1.5px solid var(--ink);padding:6px 8px 6px 0}
+td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word}
+.ok{color:#256b3a}.bad{color:var(--red)}
+.add{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr auto;gap:8px;margin:14px 0}
+.add input,.add select{min-width:0}
+.kw{border-bottom:1px solid var(--line);padding:14px 0}.kw h3{margin:0 0 6px;font-size:15px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.kw h3 input{width:68px;padding:3px 6px}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1.5px solid var(--ink);border-radius:20px;padding:0 4px 0 11px;margin:0 6px 6px 0;font-size:13px}
+.chip button{border:0;background:none;padding:0 6px;font-size:16px;line-height:1.3;color:var(--red)}
+.save{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--red);padding:10px 0;margin-top:16px;display:flex;gap:12px;align-items:center}
+@media (max-width:640px){.add{grid-template-columns:1fr}.item{grid-template-columns:50px 1fr}.ring{width:46px;height:46px;font-size:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div><h1>Tender Tracker</h1><p class="sub" id="upd">Loading…</p></div></header>
+<div class="tools"><button class="pri" id="run">Update now</button><span id="runstat" aria-live="polite"></span></div>
+<details id="tokbox"><summary>Connect GitHub (needed to run the scraper and save changes)</summary>
+<p>Create a fine-grained token for this repository only, with <b>Actions</b> and <b>Contents</b> both set to Read and write, expiring in 30 days. Paste it once. It stays in this browser only.</p>
+<input type="password" id="tok" placeholder="github_pat_…" aria-label="GitHub token"> <button id="savetok">Save token</button> <button id="cleartok">Remove token</button></details>
+<nav class="tabs"><button class="on" data-p="opps">Opportunities</button><button data-p="srcs">Sources</button><button data-p="kws">Keywords</button></nav>
+
+<section id="opps">
+<div class="bar"><input type="search" id="q" placeholder="Search titles" aria-label="Search titles">
+<select id="min" aria-label="Minimum score"><option value="0">All scores</option><option value="20" selected>Score 20+</option><option value="50">Score 50+</option><option value="70">Score 70+</option></select>
+<select id="cat" aria-label="Source type"></select><select id="src" aria-label="Source"></select><select id="st" aria-label="Status"></select></div>
+<div class="count" id="count"></div><div id="list"></div><p><button id="more" hidden>Show more</button></p>
+</section>
+
+<section id="srcs" hidden>
+<p class="meta">Pages the scraper checks. Type <b>tr</b> is for saglik.gov.tr sites, <b>list</b> is for any other page that lists announcements.</p>
+<table><thead><tr><th>Name</th><th>Type</th><th>Category</th><th>Last run</th><th></th></tr></thead><tbody id="srows"></tbody></table>
+<div class="add"><input id="aurl" placeholder="Paste a link, https://…" aria-label="Source link"><input id="aname" placeholder="Name (optional)" aria-label="Source name">
+<select id="atype" aria-label="Type"><option value="">Type: auto</option><option>tr</option><option>list</option></select>
+<select id="acat" aria-label="Category"></select><button class="pri" id="aadd">Add source</button></div>
+</section>
+
+<section id="kws" hidden>
+<p class="meta">Score = sum of category weights for every category that has a matching term (title and attachment names). Noise terms use a negative weight.</p>
+<div id="kwlist"></div>
+</section>
+<div class="save" id="savebar" hidden><span id="dirty">Unsaved changes</span><button class="pri" id="save">Save and update</button></div>
+<p class="meta" style="margin-top:30px">Scores come from keyword rules only. Korean summaries are not connected yet.</p>
+</div>
+<script>
+const REPO="ardacaniren/ihaletakip",API="https://api.github.com/repos/"+REPO;
+const STATUSES=["New","Pre-spec activity","Tender published","Bidding active","Won","Lost"];
+const CATS=["Provincial","Ministry","Research & grants","University BAP","News","Other"];
+const KWNAMES={product:"Product terms",clinical_dept:"Clinical departments",purchase_intent:"Purchase signals",device_generic:"Generic device terms",investment_signal:"Investment signals",negative:"Noise filter (lowers score)"};
+let items=[],sources=[],kw={categories:{}},health={},saved={},shown=50,dirty=new Set();
+try{saved=JSON.parse(localStorage.getItem("status")||"{}")}catch(e){}
+const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=d=>d?new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"No date";
+const opts=(f,a)=>`<option value="">${f}</option>`+a.map(s=>`<option>${esc(s)}</option>`).join("");
+const tok=()=>{try{return localStorage.getItem("gh_token")||""}catch(e){return ""}};
+const hdr=()=>{const h={Accept:"application/vnd.github+json"};if(tok())h.Authorization="Bearer "+tok();return h};
+const say=t=>{$("runstat").textContent=t};
+$("st").innerHTML=opts("All statuses",STATUSES);$("acat").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
+
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  ["opps","srcs","kws"].forEach(p=>$(p).hidden=p!==b.dataset.p);});
+function markDirty(f){dirty.add(f);$("savebar").hidden=false;$("dirty").textContent="Unsaved changes: "+[...dirty].join(", ")+". They are saved when you update."}
+
+/* opportunities */
+function setStatus(i,v){saved[items[i].link]=v;try{localStorage.setItem("status",JSON.stringify(saved))}catch(e){}renderOpps()}
+function renderOpps(){
+  const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value;
+  const rows=items.map((it,i)=>({it,i})).filter(({it})=>it.score>=min&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&it.title.toLocaleLowerCase("tr").includes(q))
+    .sort((a,b)=>b.it.score-a.it.score||(b.it.published||b.it.first_seen).localeCompare(a.it.published||a.it.first_seen));
+  $("count").textContent=`Showing ${Math.min(shown,rows.length)} of ${rows.length} matching (${items.length} total)`;$("more").hidden=rows.length<=shown;
+  $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i})=>{const cur=saved[it.link]||STATUSES[0];
+    return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
+    <h2 class="t"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(it.title)}</a></h2>
+    <div class="meta">${esc(it.source)}, ${esc(it.section)}, ${fmt(it.published||it.first_seen)}${it.published?"":" (first seen)"}</div>
+    ${(it.matched||[]).length?`<div class="note">matched: ${esc(it.matched.join(", "))}</div>`:""}
+    ${it.score>=70?'<div class="ko" lang="ko">한국어 요약: not connected yet</div>':""}
+    <div class="foot"><div class="files">${it.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div>
+    <select aria-label="Status" onchange="setStatus(${i},this.value)">${STATUSES.map(s=>`<option${s===cur?" selected":""}>${s}</option>`).join("")}</select></div></div></article>`}).join(""):'<p class="empty">Nothing matches these filters. Lower the minimum score or clear the search.</p>';
+}
+["q","min","cat","src","st"].forEach(id=>$(id).addEventListener("input",()=>{shown=50;renderOpps()}));$("more").onclick=()=>{shown+=50;renderOpps()};
+
+/* sources */
+function renderSrcs(){$("srows").innerHTML=sources.map((s,i)=>{const h=health[s.name];
+  return `<tr><td><b>${esc(s.name)}</b><br><a class="meta" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td><td>${s.type}</td><td>${esc(s.category)}</td>
+  <td>${h?(h.ok?`<span class="ok">${h.found} items</span>`:`<span class="bad">${esc(h.error)}</span>`):"not run yet"}</td><td><button onclick="delSrc(${i})" aria-label="Remove ${esc(s.name)}">Remove</button></td></tr>`}).join("")}
+function delSrc(i){sources.splice(i,1);markDirty("sources");renderSrcs()}
+$("aadd").onclick=()=>{let u;try{u=new URL($("aurl").value.trim())}catch(e){alert("Enter a full link starting with https://");return}
+  if(sources.some(s=>s.url===u.href)){alert("This link is already in the list.");return}
+  const type=$("atype").value||(u.hostname.endsWith("saglik.gov.tr")?"tr":"list");
+  sources.push({name:$("aname").value.trim()||u.hostname.replace(/^www\./,"")+u.pathname.replace(/\/$/,""),url:u.href,type,category:$("acat").value});
+  $("aurl").value=$("aname").value="";markDirty("sources");renderSrcs()};
+
+/* keywords */
+function renderKw(){$("kwlist").innerHTML=Object.entries(kw.categories).map(([k,c])=>`<div class="kw"><h3>${KWNAMES[k]||esc(k)}
+  <label class="meta">weight <input type="number" value="${c.weight}" onchange="setW('${k}',this.value)" aria-label="Weight"></label></h3>
+  ${c.terms.map((t,i)=>`<span class="chip">${esc(t)}<button onclick="delTerm('${k}',${i})" aria-label="Remove ${esc(t)}">×</button></span>`).join("")}
+  <div><input id="n_${k}" placeholder="Add a term" aria-label="New term" onkeydown="if(event.key==='Enter')addTerm('${k}')"> <button onclick="addTerm('${k}')">Add</button></div></div>`).join("")}
+function setW(k,v){kw.categories[k].weight=+v||0;markDirty("keywords")}
+function delTerm(k,i){kw.categories[k].terms.splice(i,1);markDirty("keywords");renderKw()}
+function addTerm(k){const v=$("n_"+k).value.trim().toLowerCase();if(!v)return;if(!kw.categories[k].terms.includes(v))kw.categories[k].terms.push(v);markDirty("keywords");renderKw();$("n_"+k).focus()}
+
+/* save to GitHub */
+const b64=s=>btoa(unescape(encodeURIComponent(s)));
+async function putFile(path,obj){const u=API+"/contents/"+path,cur=await(await fetch(u,{headers:hdr()})).json();
+  const r=await fetch(u,{method:"PUT",headers:hdr(),body:JSON.stringify({message:"Update "+path+" from dashboard",content:b64(JSON.stringify(obj,null,1)),sha:cur.sha,branch:"main"})});
+  if(!r.ok)throw new Error("HTTP "+r.status)}
+
+/* data */
+async function jget(f){const r=await fetch(f+"?"+Date.now());if(!r.ok)throw 0;return r.json()}
+async function load(){try{const d=await jget("data.json");items=d.items;health={};(d.sources||[]).forEach(h=>health[h.name]=h);
+  const pc=$("cat").value,ps=$("src").value;$("cat").innerHTML=opts("All source types",[...new Set(items.map(i=>i.category))]);$("src").innerHTML=opts("All sources",[...new Set(items.map(i=>i.source))].sort());$("cat").value=pc;$("src").value=ps;
+  $("upd").textContent=d.updated?`Data from ${d.updated.replace("T"," ").replace("Z"," UTC")}. Scored 0 to 100 by keyword rules.`:"No data yet. Press Update now.";
+  if(!dirty.has("sources")){try{sources=await jget("sources.json")}catch(e){}}
+  if(!dirty.has("keywords")){try{kw=await jget("keywords.json")}catch(e){}}
+  renderOpps();renderSrcs();renderKw()}catch(e){$("upd").textContent="Could not load data.json. Open this page through GitHub Pages, not as a file."}}
+async function lastRun(){try{const j=await(await fetch(API+"/actions/workflows/scrape.yml/runs?per_page=1",{headers:hdr()})).json();return j.workflow_runs&&j.workflow_runs[0]||null}catch(e){return null}}
+async function showLast(){const r=await lastRun();say(r?`Last scraper run: ${fmt(r.updated_at)} ${new Date(r.updated_at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}, ${r.status==="completed"?r.conclusion:r.status}`:"Last scraper run: unavailable")}
+async function update(){
+  if(!tok()){$("tokbox").open=true;say("Connect GitHub first (token needs Actions and Contents: Read and write).");return}
+  $("run").disabled=$("save").disabled=true;const free=()=>{$("run").disabled=$("save").disabled=false};
+  try{if(dirty.has("sources")||dirty.has("keywords")){say("Saving your changes…");
+      if(dirty.has("sources"))await putFile("sources.json",sources);if(dirty.has("keywords"))await putFile("keywords.json",kw);
+      dirty.clear();$("savebar").hidden=true}}
+  catch(e){say("Save failed ("+e.message+"). The token needs Contents: Read and write.");free();return}
+  say("Starting scraper…");const before=await lastRun();
+  const r=await fetch(API+"/actions/workflows/scrape.yml/dispatches",{method:"POST",headers:hdr(),body:JSON.stringify({ref:"main"})});
+  if(r.status!==204){say(`Could not start (HTTP ${r.status}). The token needs Actions: Read and write.`);free();return}
+  for(let i=0;i<60;i++){await sleep(10000);const c=await lastRun();
+    if(c&&(!before||c.id!==before.id)){if(c.status==="completed"){say(`Scraper ${c.conclusion}. Waiting for the site to publish…`);await sleep(75000);await load();await showLast();free();return}say("Scraper running…")}else say("Waiting for GitHub to start the run…")}
+  say("Still running after 10 minutes. Check the Actions tab.");free()}
+$("run").onclick=update;$("save").onclick=update;
+$("savetok").onclick=()=>{try{localStorage.setItem("gh_token",$("tok").value.trim());$("tok").value="";say("Token saved in this browser.")}catch(e){say("Could not save the token.")}};
+$("cleartok").onclick=()=>{try{localStorage.removeItem("gh_token")}catch(e){}say("Token removed.")};
+setInterval(()=>{if(!dirty.size)load()},300000);load();showLast();
+</script>
+</body>
+</html>

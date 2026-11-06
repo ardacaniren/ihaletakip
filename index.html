@@ -8,12 +8,13 @@
 <style>
 :root{--red:#800020;--tint:#f7edef;--ink:#231f20;--mute:#6f6769;--line:#ecdcdf;--pencil:#a39a9c;color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;color:var(--ink);background:#fff;font:15px/1.55 "Work Sans",system-ui,sans-serif;border-top:8px solid var(--red)}
+body{margin:0;color:var(--ink);background:#fff;font:15px/1.55 "Work Sans",system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;border-top:8px solid var(--red)}
 .wrap{max-width:980px;margin:0 auto;padding:0 18px 60px}
 header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-top:22px}
 h1{margin:0;font-size:30px;font-weight:600;letter-spacing:-.02em}
 .stamp{font:700 22px "Caveat",cursive;color:var(--red);border:2.5px solid var(--red);padding:0 12px;border-radius:6px;transform:rotate(4deg);white-space:nowrap}
 .sub{color:var(--mute);margin:2px 0 14px}
+.lang{display:flex;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;flex:none}.lang button{border:0;border-radius:0;border-right:1.5px solid var(--ink)}.lang button:last-child{border-right:0}.lang button.on,.lang button.on:hover{background:var(--red);color:#fff}
 button,input,select{font:inherit;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:4px;padding:6px 11px}
 button{cursor:pointer}button:hover{background:var(--tint)}button:disabled{opacity:.5;cursor:default}
 button.pri{background:var(--red);border-color:var(--red);color:#fff}button.pri:hover{background:#5c0017}
@@ -50,7 +51,8 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 </head>
 <body>
 <div class="wrap">
-<header><div><h1>Tender Tracker</h1><p class="sub" id="upd">Loading…</p></div></header>
+<header><div><h1>Tender Tracker</h1><p class="sub" id="upd">Loading…</p></div>
+<div class="lang" role="group" aria-label="Title language"><button data-l="tr">Türkçe</button><button data-l="en">English</button><button data-l="ko">한국어</button></div></header>
 <div class="tools"><button class="pri" id="run">Update now</button><span id="runstat" aria-live="polite"></span></div>
 <details id="tokbox"><summary>Connect GitHub (needed to run the scraper and save changes)</summary>
 <p>Create a fine-grained token for this repository only, with <b>Actions</b> and <b>Contents</b> both set to Read and write, expiring in 30 days. Paste it once. It stays in this browser only.</p>
@@ -84,8 +86,10 @@ const REPO="ardacaniren/ihaletakip",API="https://api.github.com/repos/"+REPO;
 const STATUSES=["New","Pre-spec activity","Tender published","Bidding active","Won","Lost"];
 const CATS=["Provincial","Ministry","Research & grants","University BAP","News","Other"];
 const KWNAMES={product:"Product terms",clinical_dept:"Clinical departments",purchase_intent:"Purchase signals",device_generic:"Generic device terms",investment_signal:"Investment signals",negative:"Noise filter (lowers score)"};
-let items=[],sources=[],kw={categories:{}},health={},saved={},shown=50,dirty=new Set();
+let items=[],sources=[],kw={categories:{}},health={},saved={},shown=50,dirty=new Set(),lang="tr";
 try{saved=JSON.parse(localStorage.getItem("status")||"{}")}catch(e){}
+try{lang=localStorage.getItem("lang")||"tr"}catch(e){}
+const tt=it=>lang==="tr"?it.title:(it["title_"+lang]||it.title);
 const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"No date";
@@ -104,12 +108,13 @@ function markDirty(f){dirty.add(f);$("savebar").hidden=false;$("dirty").textCont
 function setStatus(i,v){saved[items[i].link]=v;try{localStorage.setItem("status",JSON.stringify(saved))}catch(e){}renderOpps()}
 function renderOpps(){
   const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value;
-  const rows=items.map((it,i)=>({it,i})).filter(({it})=>it.score>=min&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&it.title.toLocaleLowerCase("tr").includes(q))
+  const rows=items.map((it,i)=>({it,i})).filter(({it})=>it.score>=min&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
     .sort((a,b)=>b.it.score-a.it.score||(b.it.published||b.it.first_seen).localeCompare(a.it.published||a.it.first_seen));
   $("count").textContent=`Showing ${Math.min(shown,rows.length)} of ${rows.length} matching (${items.length} total)`;$("more").hidden=rows.length<=shown;
   $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i})=>{const cur=saved[it.link]||STATUSES[0];
     return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
-    <h2 class="t"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(it.title)}</a></h2>
+    <h2 class="t" lang="${lang}"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(tt(it))}</a></h2>
+    ${lang!=="tr"?`<div class="meta" lang="tr">${it["title_"+lang]?"Turkish original: "+esc(it.title):"Translation pending, showing Turkish"}</div>`:""}
     <div class="meta">${esc(it.source)}, ${esc(it.section)}, ${fmt(it.published||it.first_seen)}${it.published?"":" (first seen)"}</div>
     ${(it.matched||[]).length?`<div class="note">matched: ${esc(it.matched.join(", "))}</div>`:""}
     ${it.score>=70?'<div class="ko" lang="ko">한국어 요약: not connected yet</div>':""}
@@ -170,6 +175,7 @@ async function update(){
 $("run").onclick=update;$("save").onclick=update;
 $("savetok").onclick=()=>{try{localStorage.setItem("gh_token",$("tok").value.trim());$("tok").value="";say("Token saved in this browser.")}catch(e){say("Could not save the token.")}};
 $("cleartok").onclick=()=>{try{localStorage.removeItem("gh_token")}catch(e){}say("Token removed.")};
+document.querySelectorAll(".lang button").forEach(b=>{b.classList.toggle("on",b.dataset.l===lang);b.onclick=()=>{lang=b.dataset.l;try{localStorage.setItem("lang",lang)}catch(e){}document.querySelectorAll(".lang button").forEach(x=>x.classList.toggle("on",x===b));renderOpps()}});
 setInterval(()=>{if(!dirty.size)load()},300000);load();showLast();
 </script>
 </body>

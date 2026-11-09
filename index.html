@@ -64,7 +64,8 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 <div class="types" id="types" role="group" aria-label="Content type"></div>
 <div class="bar"><input type="search" id="q" placeholder="Search titles" aria-label="Search titles">
 <select id="min" aria-label="Minimum score"><option value="0">All scores</option><option value="20" selected>Score 20+</option><option value="50">Score 50+</option><option value="70">Score 70+</option></select>
-<select id="cat" aria-label="Source type"></select><select id="src" aria-label="Source"></select><select id="st" aria-label="Status"></select></div>
+<select id="cat" aria-label="Source type"></select><select id="src" aria-label="Source"></select><select id="st" aria-label="Status"></select>
+<select id="sort" aria-label="Sort by"><option value="score">Sort: highest score</option><option value="published">Sort: newest published</option><option value="found">Sort: newest found</option></select></div>
 <div class="count" id="count"></div><div id="list"></div><p><button id="more" hidden>Show more</button></p>
 </section>
 
@@ -125,6 +126,10 @@ function typeOf(it){
   return "ann";}
 $("types").onclick=e=>{const b=e.target.closest("button");if(!b)return;type=b.dataset.t;shown=50;
   $("min").value=(type==="all"||type==="bid")?"20":"0";renderOpps()};
+const dkey=it=>it.published||it.first_seen||"";
+const SORTS={score:(a,b)=>b.it.score-a.it.score||dkey(b.it).localeCompare(dkey(a.it)),
+  published:(a,b)=>dkey(b.it).localeCompare(dkey(a.it))||b.it.score-a.it.score,
+  found:(a,b)=>(b.it.first_seen||"").localeCompare(a.it.first_seen||"")||b.it.score-a.it.score};
 $("st").innerHTML=opts("All statuses",STATUSES);$("acat").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
 
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
@@ -137,7 +142,7 @@ function setStatus(i,v){saved[items[i].link]=v;try{localStorage.setItem("status"
 function renderOpps(){
   const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value;
   const base=items.map((it,i)=>({it,i})).filter(({it})=>it.score>=min&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
-    .sort((a,b)=>b.it.score-a.it.score||(b.it.published||b.it.first_seen).localeCompare(a.it.published||a.it.first_seen));
+    .sort(SORTS[$("sort").value]);
   const cnt={all:base.length};TYPES.forEach(t=>cnt[t.k]=0);base.forEach(({it})=>cnt[typeOf(it)]++);
   $("types").innerHTML=[{k:"all",n:"All"},...TYPES].map(t=>`<button data-t="${t.k}" class="${t.k===type?"on":""}" aria-pressed="${t.k===type}">${t.n}<small>${cnt[t.k]}</small></button>`).join("");
   const rows=type==="all"?base:base.filter(({it})=>typeOf(it)===type);
@@ -146,14 +151,14 @@ function renderOpps(){
     return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
     <h2 class="t" lang="${lang}"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(tt(it))}</a></h2>
     ${lang!=="tr"?`<div class="meta" lang="tr">${(it["title_"+lang]||tcache[lang+"|"+it.link])?"Turkish original: "+esc(it.title):(tfail.has(lang+"|"+it.link)?"Translation unavailable, showing Turkish":"Translating…")}</div>`:""}
-    <div class="meta">${esc(TYPES.find(t=>t.k===typeOf(it)).n)}, ${esc(it.source)}, ${fmt(it.published||it.first_seen)}${it.published?"":" (first seen)"}</div>
+    <div class="meta">${esc(TYPES.find(t=>t.k===typeOf(it)).n)}, ${esc(it.source)}, ${it.published?"published "+fmt(it.published):"publish date unknown"}, found ${fmt(it.first_seen)}</div>
     ${(it.matched||[]).length?`<div class="note">matched: ${esc(it.matched.join(", "))}</div>`:""}
     ${it.score>=70?'<div class="ko" lang="ko">한국어 요약: not connected yet</div>':""}
     <div class="foot"><div class="files">${it.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div>
     <select aria-label="Status" onchange="setStatus(${i},this.value)">${STATUSES.map(s=>`<option${s===cur?" selected":""}>${s}</option>`).join("")}</select></div></div></article>`}).join(""):'<p class="empty">Nothing matches these filters. Lower the minimum score or clear the search.</p>';
   fillMissing(rows.slice(0,shown));
 }
-["q","min","cat","src","st"].forEach(id=>$(id).addEventListener("input",()=>{shown=50;renderOpps()}));$("more").onclick=()=>{shown+=50;renderOpps()};
+["q","min","cat","src","st","sort"].forEach(id=>$(id).addEventListener("input",()=>{shown=50;renderOpps()}));$("more").onclick=()=>{shown+=50;renderOpps()};
 
 /* sources */
 function renderSrcs(){$("srows").innerHTML=sources.map((s,i)=>{const h=health[s.name];

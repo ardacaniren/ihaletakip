@@ -13,15 +13,24 @@ LABELS = {"duyurular": "Announcements", "ihale ilanları": "Tenders", "haberler"
 KW = json.load(open("keywords.json", encoding="utf-8"))
 
 
+_FOLD = str.maketrans("ışğüöçâîû", "isguocaiu")
+
+
 def norm(s):
-    return s.replace("İ", "i").replace("I", "ı").lower()
+    # Turkish-safe lowercase, then fold diacritics so "VÜCUT", "vucut" and "INBODY" all match
+    return s.replace("İ", "i").replace("I", "ı").lower().translate(_FOLD)
 
 
 def score(title, section, files):
     text = norm(title + " " + " ".join(f["name"] for f in files))
     total, matched = KW["section_bonus"].get(section, 0), []
     for cat in KW["categories"].values():
-        hits = [t for t in cat["terms"] if re.search(r"(?<!\w)" + re.escape(norm(t)), text)]
+        hits = []
+        for t in cat["terms"]:
+            n = norm(t)
+            end = r"(?!\w)" if len(n) <= 3 else ""  # short terms (bia, bwa, ftr) must be whole words
+            if re.search(r"(?<!\w)" + re.escape(n) + end, text):
+                hits.append(t)
         if hits:
             total += cat["weight"]
             matched += hits if cat["weight"] > 0 else []

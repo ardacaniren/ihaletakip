@@ -1,7 +1,11 @@
 """Multi-source tender scraper. Reads sources.json + keywords.json, writes data.json."""
-import re, json, os, sys, time, datetime, requests
+import re, json, os, sys, time, datetime, io, zipfile, requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
+try:
+    import pypdf
+except ImportError:  # PDFs are skipped if pypdf is not installed
+    pypdf = None
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # only matters for sources marked insecure
 
@@ -24,19 +28,38 @@ def norm(s):
     return s.replace("İ", "i").replace("I", "ı").lower().translate(_FOLD)
 
 
-def score(title, section, files):
+DOC_CATS = ("product", "brand", "body_metrics")  # attachment text only counts for these precise categories
+
+
+def find_terms(terms, text):
+    hits = []
+    for t in terms:
+        n = norm(t)
+        end = r"(?!\w)" if len(n) <= 3 else ""  # short terms (bia, bwa, ftr) must be whole words
+        if re.search(r"(?<!\w)" + re.escape(n) + end, text):
+            hits.append(t)
+    return hits
+
+
+def score(title, section, files, doc_hits=(), doc_chars=0):
     text = norm(title + " " + " ".join(f["name"] for f in files))
-    total, matched = KW["section_bonus"].get(section, 0), []
-    for cat in KW["categories"].values():
-        hits = []
-        for t in cat["terms"]:
-            n = norm(t)
-            end = r"(?!\w)" if len(n) <= 3 else ""  # short terms (bia, bwa, ftr) must be whole words
-            if re.search(r"(?<!\w)" + re.escape(n) + end, text):
-                hits.append(t)
+    total, matched, got = KW["section_bonus"].get(section, 0), [], set()
+    for name, cat in KW["categories"].items():
+        hits = find_terms(cat["terms"], text)
         if hits:
+            got.add(name)
             total += cat["weight"]
             matched += hits if cat["weight"] > 0 else []
+    for name in DOC_CATS:  # precise signal: words found INSIDE the attached specification files
+        cat = KW["categories"].get(name)
+        dh = [t for t in doc_hits if cat and t in cat["terms"]]
+        if dh:
+            if name not in got:
+                total += cat["weight"]
+            matched += [t + " (in file)" for t in dh if t + " (in file)" not in matched]
+            got.add(name)
+    if doc_chars > 500 and not got.intersection(DOC_CATS):
+        total -= 30  # files were read and nothing InBody-like is in them
     return max(0, min(100, total)), matched
 
 
@@ -143,6 +166,57 @@ def detail(link, title=""):
     return pub, files
 
 
+def fetch_bytes(url, max_mb=6):
+    r = requests.get(url, timeout=(10, 40), headers=H, stream=True)
+    r.raise_for_status()
+    data = b""
+    for chunk in r.iter_content(65536):
+        data += chunk
+        if len(data) > max_mb * 1048576:
+            raise ValueError("file too large")
+    return data
+
+
+def doc_text(name, data):
+    n = name.lower()
+    if n.endswith(".pdf"):
+        if pypdf is None:
+            raise RuntimeError("pypdf not installed")
+        rd = pypdf.PdfReader(io.BytesIO(data))
+        return " ".join((pg.extract_text() or "") for pg in rd.pages[:60])
+    z = zipfile.ZipFile(io.BytesIO(data))
+    names = z.namelist()
+    if n.endswith(".docx"):
+        xml = z.read("word/document.xml").decode("utf-8", "ignore")
+        xml = re.sub(r"</w:p>|<w:tab/>|<w:br/>", " ", xml)
+    else:  # .xlsx
+        xml = z.read("xl/sharedStrings.xml").decode("utf-8", "ignore") if "xl/sharedStrings.xml" in names else ""
+        xml = xml.replace("</si>", " ")
+    return re.sub(r"<[^>]+>", "", xml)
+
+
+def scan_documents(it, max_files=4):
+    """Read attached specification files (pdf, docx, xlsx) and report InBody-related terms found inside."""
+    hits, chars, tried, errors = set(), 0, 0, 0
+    for f in it["files"]:
+        ref = (f["name"] + " " + f["url"].split("?")[0]).lower()
+        if tried >= max_files or not re.search(r"\.(pdf|docx|xlsx)\b", ref):
+            continue
+        tried += 1
+        try:
+            ext = re.search(r"\.(pdf|docx|xlsx)\b", ref).group(0)
+            text = norm(doc_text("x" + ext, fetch_bytes(f["url"])))
+        except Exception:
+            errors += 1
+            continue
+        chars += len(text)
+        for cname in DOC_CATS:
+            hits.update(find_terms(KW["categories"].get(cname, {}).get("terms", []), text))
+    if tried and errors == tried:
+        raise RuntimeError("no attachment could be read")
+    return sorted(hits), chars
+
+
 def translate(text, tl):
     """Turkish -> en/ko via Google's free web endpoint (unofficial, may be rate limited)."""
     r = requests.get("https://translate.googleapis.com/translate_a/single", headers=H, timeout=8,
@@ -217,8 +291,22 @@ def main():
             time.sleep(1)
     names = {s["name"] for s in sources}
     items = {l: i for l, i in items.items() if i["source"] in names}  # dropped sources disappear
+    scan_budget = 25  # attachments are opened for the most promising items first
+    for it in sorted(items.values(), key=lambda i: -score(i["title"], i["section"], i["files"])[0]):
+        if scan_budget <= 0:
+            break
+        if "doc_hits" in it or it.get("doc_tries", 0) >= 2 or not it["files"]:
+            continue
+        if score(it["title"], it["section"], it["files"])[0] < 15 and it["section"] != "Tenders":
+            continue
+        scan_budget -= 1
+        try:
+            it["doc_hits"], it["doc_chars"] = scan_documents(it)
+        except Exception:
+            it["doc_tries"] = it.get("doc_tries", 0) + 1
+        time.sleep(1)
     for it in items.values():  # re-score everything so keyword edits apply to old items
-        it["score"], it["matched"] = score(it["title"], it["section"], it["files"])
+        it["score"], it["matched"] = score(it["title"], it["section"], it["files"], it.get("doc_hits", ()), it.get("doc_chars", 0))
     add_translations(list(items.values()))
     rows = sorted(items.values(), key=lambda i: i["published"] or i["first_seen"], reverse=True)[:3000]
     new = {"items": rows, "sources": health}

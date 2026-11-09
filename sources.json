@@ -175,7 +175,7 @@
  },
  {
   "name": "KTÜ BAP",
-  "url": "https://www.ktu.edu.tr/bapb/",
+  "url": "https://www.ktu.edu.tr/bapb",
   "type": "list",
   "category": "University BAP"
  },
@@ -262,5 +262,401 @@
   "url": "https://bap.sbu.edu.tr/",
   "type": "list",
   "category": "University BAP"
+ },
+ {
+  "name": "Adıyaman Provincial Health Directorate",
+  "url": "https://adiyamanism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Afyonkarahisar Provincial Health Directorate",
+  "url": "https://afyonkarahisarism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Ağrı Provincial Health Directorate",
+  "url": "https://agriism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Aksaray Provincial Health Directorate",
+  "url": "https://aksarayism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Amasya Provincial Health Directorate",
+  "url": "https://amasyaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Ardahan Provincial Health Directorate",
+  "url": "https://ardahanism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Artvin Provincial Health Directorate",
+  "url": "https://artvinism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Aydın Provincial Health Directorate",
+  "url": "https://aydinism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Balıkesir Provincial Health Directorate",
+  "url": "https://balikesirism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Bartın Provincial Health Directorate",
+  "url": "https://bartinism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Batman Provincial Health Directorate",
+  "url": "https://batmanism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Bayburt Provincial Health Directorate",
+  "url": "https://bayburtism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Bilecik Provincial Health Directorate",
+  "url": "https://bilecikism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Bingöl Provincial Health Directorate",
+  "url": "https://bingolism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Bitlis Provincial Health Directorate",
+  "url": "https://bitlisism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Bolu Provincial Health Directorate",
+  "url": "https://boluism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Burdur Provincial Health Directorate",
+  "url": "https://burdurism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Çanakkale Provincial Health Directorate",
+  "url": "https://canakkaleism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Çankırı Provincial Health Directorate",
+  "url": "https://cankiriism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Çorum Provincial Health Directorate",
+  "url": "https://corumism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Denizli Provincial Health Directorate",
+  "url": "https://denizliism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Düzce Provincial Health Directorate",
+  "url": "https://duzceism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Edirne Provincial Health Directorate",
+  "url": "https://edirneism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Elazığ Provincial Health Directorate",
+  "url": "https://elazigism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Erzincan Provincial Health Directorate",
+  "url": "https://erzincanism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Erzurum Provincial Health Directorate",
+  "url": "https://erzurumism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Eskişehir Provincial Health Directorate",
+  "url": "https://eskisehirism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Giresun Provincial Health Directorate",
+  "url": "https://giresunism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Gümüşhane Provincial Health Directorate",
+  "url": "https://gumushaneism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Hakkari Provincial Health Directorate",
+  "url": "https://hakkariism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Hatay Provincial Health Directorate",
+  "url": "https://hatayism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Iğdır Provincial Health Directorate",
+  "url": "https://igdirism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kahramanmaraş Provincial Health Directorate",
+  "url": "https://kahramanmarasism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Karabük Provincial Health Directorate",
+  "url": "https://karabukism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Karaman Provincial Health Directorate",
+  "url": "https://karamanism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kars Provincial Health Directorate",
+  "url": "https://karsism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kastamonu Provincial Health Directorate",
+  "url": "https://kastamonuism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kilis Provincial Health Directorate",
+  "url": "https://kilisism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kırıkkale Provincial Health Directorate",
+  "url": "https://kirikkaleism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kırklareli Provincial Health Directorate",
+  "url": "https://kirklareliism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kırşehir Provincial Health Directorate",
+  "url": "https://kirsehirism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Kütahya Provincial Health Directorate",
+  "url": "https://kutahyaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Malatya Provincial Health Directorate",
+  "url": "https://malatyaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Manisa Provincial Health Directorate",
+  "url": "https://manisaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Mardin Provincial Health Directorate",
+  "url": "https://mardinism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Muğla Provincial Health Directorate",
+  "url": "https://muglaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Muş Provincial Health Directorate",
+  "url": "https://musism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Nevşehir Provincial Health Directorate",
+  "url": "https://nevsehirism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Niğde Provincial Health Directorate",
+  "url": "https://nigdeism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Ordu Provincial Health Directorate",
+  "url": "https://orduism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Osmaniye Provincial Health Directorate",
+  "url": "https://osmaniyeism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Rize Provincial Health Directorate",
+  "url": "https://rizeism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Siirt Provincial Health Directorate",
+  "url": "https://siirtism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Sinop Provincial Health Directorate",
+  "url": "https://sinopism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Sivas Provincial Health Directorate",
+  "url": "https://sivasism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Şırnak Provincial Health Directorate",
+  "url": "https://sirnakism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Tekirdağ Provincial Health Directorate",
+  "url": "https://tekirdagism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Tokat Provincial Health Directorate",
+  "url": "https://tokatism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Trabzon Provincial Health Directorate",
+  "url": "https://trabzonism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Tunceli Provincial Health Directorate",
+  "url": "https://tunceliism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Uşak Provincial Health Directorate",
+  "url": "https://usakism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Van Provincial Health Directorate",
+  "url": "https://vanism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Yalova Provincial Health Directorate",
+  "url": "https://yalovaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Yozgat Provincial Health Directorate",
+  "url": "https://yozgatism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Zonguldak Provincial Health Directorate",
+  "url": "https://zonguldakism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
+ },
+ {
+  "name": "Isparta Provincial Health Directorate",
+  "url": "https://ispartaism.saglik.gov.tr/",
+  "type": "tr",
+  "category": "Provincial"
  }
 ]

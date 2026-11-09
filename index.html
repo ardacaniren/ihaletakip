@@ -24,6 +24,7 @@ details{font-size:13px;color:var(--mute);margin:10px 0}details p{max-width:660px
 nav.tabs{display:flex;gap:24px;border-bottom:1.5px solid var(--ink);margin:16px 0 18px}
 nav.tabs button{border:0;border-radius:0;background:none;padding:8px 2px;font-weight:500;color:var(--mute);border-bottom:4px solid transparent;margin-bottom:-1.5px}
 nav.tabs button.on{color:var(--ink);border-bottom-color:var(--red)}
+.types{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.types button{border-radius:20px;padding:5px 14px}.types button.on{background:var(--red);border-color:var(--red);color:#fff}.types small{opacity:.75;margin-left:4px}
 .bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}.bar input[type=search]{flex:1 1 200px}
 .count{color:var(--mute);font-size:13px;margin-bottom:4px}
 .item{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
@@ -60,6 +61,7 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 <nav class="tabs"><button class="on" data-p="opps">Opportunities</button><button data-p="srcs">Sources</button><button data-p="kws">Keywords</button></nav>
 
 <section id="opps">
+<div class="types" id="types" role="group" aria-label="Content type"></div>
 <div class="bar"><input type="search" id="q" placeholder="Search titles" aria-label="Search titles">
 <select id="min" aria-label="Minimum score"><option value="0">All scores</option><option value="20" selected>Score 20+</option><option value="50">Score 50+</option><option value="70">Score 70+</option></select>
 <select id="cat" aria-label="Source type"></select><select id="src" aria-label="Source"></select><select id="st" aria-label="Status"></select></div>
@@ -85,7 +87,7 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 const REPO="ardacaniren/ihaletakip",API="https://api.github.com/repos/"+REPO;
 const STATUSES=["New","Pre-spec activity","Tender published","Bidding active","Won","Lost"];
 const CATS=["Provincial","Ministry","Research & grants","University BAP","News","Other"];
-const KWNAMES={product:"Product terms",clinical_dept:"Clinical departments",purchase_intent:"Purchase signals",device_generic:"Generic device terms",investment_signal:"Investment signals",negative:"Noise filter (lowers score)"};
+const KWNAMES={product:"Product terms (InBody, body composition)",brand:"Brand names (InBody and competitors)",body_metrics:"Body metrics and measurements",clinical_dept:"Clinical departments",purchase_intent:"Purchase signals",device_generic:"Generic device terms",investment_signal:"Investment signals",negative:"Noise filter (lowers score)"};
 let items=[],sources=[],kw={categories:{}},health={},saved={},shown=50,dirty=new Set(),lang="tr";
 try{saved=JSON.parse(localStorage.getItem("status")||"{}")}catch(e){}
 try{lang=localStorage.getItem("lang")||"tr"}catch(e){}
@@ -110,6 +112,19 @@ const opts=(f,a)=>`<option value="">${f}</option>`+a.map(s=>`<option>${esc(s)}</
 const tok=()=>{try{return localStorage.getItem("gh_token")||""}catch(e){return ""}};
 const hdr=()=>{const h={Accept:"application/vnd.github+json"};if(tok())h.Authorization="Bearer "+tok();return h};
 const say=t=>{$("runstat").textContent=t};
+const TYPES=[{k:"bid",n:"Bids & tenders"},{k:"ann",n:"Announcements"},{k:"news",n:"News"},{k:"grants",n:"Grants & research"}];
+let type="all";
+const fold=s=>String(s).replace(/İ/g,"i").replace(/I/g,"ı").toLowerCase().replace(/[ışğüöç]/g,c=>({"ı":"i","ş":"s","ğ":"g","ü":"u","ö":"o","ç":"c"})[c]);
+const BID_T=/\b(ihale|satin al|alim|teklif|sartname|yaklasik maliyet|dogrudan temin|pazarlik)/,BID_F=/sartname|ihale|teklif/,NOT_BID=/personel|sozlesmeli|memur|kadro|yedek|isci/;
+function typeOf(it){
+  if(it.category==="Research & grants"||it.category==="University BAP")return "grants";
+  if(it.section==="Tenders")return "bid";
+  if(it.section==="News"||it.category==="News")return "news";
+  const t=fold(it.title);
+  if((BID_T.test(t)&&!NOT_BID.test(t))||it.files.some(f=>BID_F.test(fold(f.name))))return "bid";
+  return "ann";}
+$("types").onclick=e=>{const b=e.target.closest("button");if(!b)return;type=b.dataset.t;shown=50;
+  $("min").value=(type==="all"||type==="bid")?"20":"0";renderOpps()};
 $("st").innerHTML=opts("All statuses",STATUSES);$("acat").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
 
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
@@ -121,14 +136,17 @@ function markDirty(f){dirty.add(f);$("savebar").hidden=false;$("dirty").textCont
 function setStatus(i,v){saved[items[i].link]=v;try{localStorage.setItem("status",JSON.stringify(saved))}catch(e){}renderOpps()}
 function renderOpps(){
   const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value;
-  const rows=items.map((it,i)=>({it,i})).filter(({it})=>it.score>=min&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
+  const base=items.map((it,i)=>({it,i})).filter(({it})=>it.score>=min&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
     .sort((a,b)=>b.it.score-a.it.score||(b.it.published||b.it.first_seen).localeCompare(a.it.published||a.it.first_seen));
+  const cnt={all:base.length};TYPES.forEach(t=>cnt[t.k]=0);base.forEach(({it})=>cnt[typeOf(it)]++);
+  $("types").innerHTML=[{k:"all",n:"All"},...TYPES].map(t=>`<button data-t="${t.k}" class="${t.k===type?"on":""}" aria-pressed="${t.k===type}">${t.n}<small>${cnt[t.k]}</small></button>`).join("");
+  const rows=type==="all"?base:base.filter(({it})=>typeOf(it)===type);
   $("count").textContent=`Showing ${Math.min(shown,rows.length)} of ${rows.length} matching (${items.length} total)`;$("more").hidden=rows.length<=shown;
   $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i})=>{const cur=saved[it.link]||STATUSES[0];
     return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
     <h2 class="t" lang="${lang}"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(tt(it))}</a></h2>
     ${lang!=="tr"?`<div class="meta" lang="tr">${(it["title_"+lang]||tcache[lang+"|"+it.link])?"Turkish original: "+esc(it.title):(tfail.has(lang+"|"+it.link)?"Translation unavailable, showing Turkish":"Translating…")}</div>`:""}
-    <div class="meta">${esc(it.source)}, ${esc(it.section)}, ${fmt(it.published||it.first_seen)}${it.published?"":" (first seen)"}</div>
+    <div class="meta">${esc(TYPES.find(t=>t.k===typeOf(it)).n)}, ${esc(it.source)}, ${fmt(it.published||it.first_seen)}${it.published?"":" (first seen)"}</div>
     ${(it.matched||[]).length?`<div class="note">matched: ${esc(it.matched.join(", "))}</div>`:""}
     ${it.score>=70?'<div class="ko" lang="ko">한국어 요약: not connected yet</div>':""}
     <div class="foot"><div class="files">${it.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div>

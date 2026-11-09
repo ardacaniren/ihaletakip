@@ -8,6 +8,7 @@
 <style>
 :root{--red:#800020;--tint:#f7edef;--ink:#231f20;--mute:#6f6769;--line:#ecdcdf;--pencil:#a39a9c;color-scheme:light}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;color:var(--ink);background:#fff;font:15px/1.55 "Work Sans",system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;border-top:8px solid var(--red)}
 .wrap{max-width:980px;margin:0 auto;padding:0 18px 60px}
 header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-top:22px}
@@ -24,6 +25,7 @@ details{font-size:13px;color:var(--mute);margin:10px 0}details p{max-width:660px
 nav.tabs{display:flex;gap:24px;border-bottom:1.5px solid var(--ink);margin:16px 0 18px}
 nav.tabs button{border:0;border-radius:0;background:none;padding:8px 2px;font-weight:500;color:var(--mute);border-bottom:4px solid transparent;margin-bottom:-1.5px}
 nav.tabs button.on{color:var(--ink);border-bottom-color:var(--red)}
+.star{border:0;background:none;font-size:22px;line-height:1;padding:0 6px;color:var(--red);cursor:pointer}.star:hover{background:var(--tint)}
 .types{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.types button{border-radius:20px;padding:5px 14px}.types button.on{background:var(--red);border-color:var(--red);color:#fff}.types small{opacity:.75;margin-left:4px}
 .bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}.bar input[type=search]{flex:1 1 200px}
 .count{color:var(--mute);font-size:13px;margin-bottom:4px}
@@ -58,12 +60,12 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 <details id="tokbox"><summary>Connect GitHub (needed to run the scraper and save changes)</summary>
 <p>Create a fine-grained token for this repository only, with <b>Actions</b> and <b>Contents</b> both set to Read and write, expiring in 30 days. Paste it once. It stays in this browser only.</p>
 <input type="password" id="tok" placeholder="github_pat_…" aria-label="GitHub token"> <button id="savetok">Save token</button> <button id="cleartok">Remove token</button></details>
-<nav class="tabs"><button class="on" data-p="opps">Opportunities</button><button data-p="srcs">Sources</button><button data-p="kws">Keywords</button></nav>
+<nav class="tabs"><button class="on" data-p="opps">Opportunities</button><button data-p="saved" id="savedtab">Saved</button><button data-p="srcs">Sources</button><button data-p="kws">Keywords</button></nav>
 
 <section id="opps">
 <div class="types" id="types" role="group" aria-label="Content type"></div>
 <div class="bar"><input type="search" id="q" placeholder="Search titles" aria-label="Search titles">
-<select id="min" aria-label="Minimum score"><option value="0">All scores</option><option value="20" selected>Score 20+</option><option value="50">Score 50+</option><option value="70">Score 70+</option></select>
+<select id="min" aria-label="Minimum score"><option value="0">All scores</option><option value="20" selected>Score 20+</option><option value="40">Score 40+</option><option value="60">Score 60+</option><option value="70">Score 70+</option></select>
 <select id="cat" aria-label="Source type"></select><select id="src" aria-label="Source"></select><select id="st" aria-label="Status"></select>
 <select id="sort" aria-label="Sort by"><option value="score">Sort: highest score</option><option value="published">Sort: newest published</option><option value="found">Sort: newest found</option></select></div>
 <div class="count" id="count"></div><div id="list"></div><p><button id="more" hidden>Show more</button></p>
@@ -114,7 +116,7 @@ const tok=()=>{try{return localStorage.getItem("gh_token")||""}catch(e){return "
 const hdr=()=>{const h={Accept:"application/vnd.github+json"};if(tok())h.Authorization="Bearer "+tok();return h};
 const say=t=>{$("runstat").textContent=t};
 const TYPES=[{k:"bid",n:"Bids & tenders"},{k:"ann",n:"Announcements"},{k:"news",n:"News"},{k:"grants",n:"Grants & research"}];
-let type="all";
+let type="all",savedOnly=false,starred=new Set();
 const fold=s=>String(s).replace(/İ/g,"i").replace(/I/g,"ı").toLowerCase().replace(/[ışğüöç]/g,c=>({"ı":"i","ş":"s","ğ":"g","ü":"u","ö":"o","ç":"c"})[c]);
 const BID_T=/\b(ihale|satin al|alim|teklif|sartname|yaklasik maliyet|dogrudan temin|pazarlik)/,BID_F=/sartname|ihale|teklif/,NOT_BID=/personel|sozlesmeli|memur|kadro|yedek|isci/;
 function typeOf(it){
@@ -134,19 +136,21 @@ $("st").innerHTML=opts("All statuses",STATUSES);$("acat").innerHTML=CATS.map(c=>
 
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
-  ["opps","srcs","kws"].forEach(p=>$(p).hidden=p!==b.dataset.p);});
+  savedOnly=b.dataset.p==="saved";const show=savedOnly?"opps":b.dataset.p;
+  ["opps","srcs","kws"].forEach(p=>$(p).hidden=p!==show);shown=50;renderOpps();});
 function markDirty(f){dirty.add(f);$("savebar").hidden=false;$("dirty").textContent="Unsaved changes: "+[...dirty].join(", ")+". They are saved when you update."}
 
 /* opportunities */
 function setStatus(i,v){saved[items[i].link]=v;try{localStorage.setItem("status",JSON.stringify(saved))}catch(e){}renderOpps()}
 function renderOpps(){
   const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value;
-  const base=items.map((it,i)=>({it,i})).filter(({it})=>it.score>=min&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
+  const base=items.map((it,i)=>({it,i})).filter(({it})=>(savedOnly?starred.has(it.link):it.score>=min)&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
     .sort(SORTS[$("sort").value]);
   const cnt={all:base.length};TYPES.forEach(t=>cnt[t.k]=0);base.forEach(({it})=>cnt[typeOf(it)]++);
   $("types").innerHTML=[{k:"all",n:"All"},...TYPES].map(t=>`<button data-t="${t.k}" class="${t.k===type?"on":""}" aria-pressed="${t.k===type}">${t.n}<small>${cnt[t.k]}</small></button>`).join("");
   const rows=type==="all"?base:base.filter(({it})=>typeOf(it)===type);
-  $("count").textContent=`Showing ${Math.min(shown,rows.length)} of ${rows.length} matching (${items.length} total)`;$("more").hidden=rows.length<=shown;
+  $("count").textContent=savedOnly?`${rows.length} saved. Saved items are shared with the whole team.`:`${rows.length} matching (score ${min}+ and your filters). ${items.length} items collected in total, the rest are filtered out as not relevant.`;
+  $("savedtab").textContent="Saved ("+starred.size+")";$("more").hidden=rows.length<=shown;
   $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i})=>{const cur=saved[it.link]||STATUSES[0];
     return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
     <h2 class="t" lang="${lang}"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(tt(it))}</a></h2>
@@ -154,7 +158,7 @@ function renderOpps(){
     <div class="meta">${esc(TYPES.find(t=>t.k===typeOf(it)).n)}, ${esc(it.source)}, ${it.published?"published "+fmt(it.published):"publish date unknown"}, found ${fmt(it.first_seen)}</div>
     ${(it.matched||[]).length?`<div class="note">matched: ${esc(it.matched.join(", "))}</div>`:""}
     ${it.score>=70?'<div class="ko" lang="ko">한국어 요약: not connected yet</div>':""}
-    <div class="foot"><div class="files">${it.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div>
+    <div class="foot"><div class="files"><button class="star" onclick="toggleStar(${i})" aria-label="${starred.has(it.link)?'Remove from saved':'Save this item'}" aria-pressed="${starred.has(it.link)}" title="${starred.has(it.link)?'Saved for the whole team':'Save for the whole team'}">${starred.has(it.link)?"★":"☆"}</button>${it.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div>
     <select aria-label="Status" onchange="setStatus(${i},this.value)">${STATUSES.map(s=>`<option${s===cur?" selected":""}>${s}</option>`).join("")}</select></div></div></article>`}).join(""):'<p class="empty">Nothing matches these filters. Lower the minimum score or clear the search.</p>';
   fillMissing(rows.slice(0,shown));
 }
@@ -186,9 +190,32 @@ async function putFile(path,obj){const u=API+"/contents/"+path,cur=await(await f
   const r=await fetch(u,{method:"PUT",headers:hdr(),body:JSON.stringify({message:"Update "+path+" from dashboard",content:b64(JSON.stringify(obj,null,1)),sha:cur.sha,branch:"main"})});
   if(!r.ok)throw new Error("HTTP "+r.status)}
 
+/* stars (shared through starred.json in the repository) */
+async function saveStar(link,on){
+  for(let a=0;a<3;a++){
+    const u=API+"/contents/starred.json";const r=await fetch(u,{headers:hdr()});let sha,obj={items:{}};
+    if(r.status===200){const c=await r.json();sha=c.sha;obj=JSON.parse(decodeURIComponent(escape(atob(c.content.replace(/\n/g,"")))))}
+    else if(r.status!==404)throw new Error("HTTP "+r.status);
+    obj.items=obj.items||{};if(on)obj.items[link]={at:new Date().toISOString()};else delete obj.items[link];
+    const body={message:"Star update from dashboard",content:b64(JSON.stringify(obj,null,1)),branch:"main"};if(sha)body.sha=sha;
+    const w=await fetch(u,{method:"PUT",headers:hdr(),body:JSON.stringify(body)});
+    if(w.ok)return;if(w.status!==409&&w.status!==422)throw new Error("HTTP "+w.status)}
+  throw new Error("someone else saved at the same time, try again")}
+async function toggleStar(i){
+  const link=items[i].link;
+  if(!tok()){$("tokbox").open=true;say("Connect GitHub to save items. Saved items are shared with the whole team.");return}
+  const was=starred.has(link);was?starred.delete(link):starred.add(link);renderOpps();
+  try{await saveStar(link,!was);say(was?"Removed from saved.":"Saved for the whole team.")}
+  catch(e){was?starred.add(link):starred.delete(link);renderOpps();say("Could not save ("+e.message+"). The token needs Contents: Read and write.")}}
+async function loadStars(){
+  try{const r=await fetch(API+"/contents/starred.json?ref=main",{headers:{...hdr(),Accept:"application/vnd.github.raw+json"}});
+    if(r.ok){starred=new Set(Object.keys((await r.json()).items||{}));return}
+    if(r.status===404){starred=new Set();return}}catch(e){}
+  try{starred=new Set(Object.keys((await jget("starred.json")).items||{}))}catch(e){}}
+
 /* data */
 async function jget(f){const r=await fetch(f+"?"+Date.now());if(!r.ok)throw 0;return r.json()}
-async function load(){try{const d=await jget("data.json");items=d.items;health={};(d.sources||[]).forEach(h=>health[h.name]=h);
+async function load(){try{await loadStars();const d=await jget("data.json");items=d.items;health={};(d.sources||[]).forEach(h=>health[h.name]=h);
   const pc=$("cat").value,ps=$("src").value;$("cat").innerHTML=opts("All source types",[...new Set(items.map(i=>i.category))]);$("src").innerHTML=opts("All sources",[...new Set(items.map(i=>i.source))].sort());$("cat").value=pc;$("src").value=ps;
   $("upd").textContent=d.updated?`Data from ${d.updated.replace("T"," ").replace("Z"," UTC")}. Scored 0 to 100 by keyword rules.`:"No data yet. Press Update now.";
   if(!dirty.has("sources")){try{sources=await jget("sources.json")}catch(e){}}

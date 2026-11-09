@@ -106,14 +106,38 @@ def list_links(soup, base):
     return out
 
 
-def detail(link):
+NMONTHS = [norm(m) for m in MONTHS.split("|")]
+DATE_TXT = re.compile(r"(\d{1,2})\s+(" + "|".join(NMONTHS) + r")\s+(20\d{2})")
+DATE_NUM = re.compile(r"(?<!\d)(\d{1,2})[./](\d{1,2})[./](20\d{2})(?!\d)")
+
+
+def parse_dates(t):
+    raw = [(m.start(), int(m.group(3)), NMONTHS.index(m.group(2)) + 1, int(m.group(1))) for m in DATE_TXT.finditer(t)]
+    raw += [(m.start(), int(m.group(3)), int(m.group(2)), int(m.group(1))) for m in DATE_NUM.finditer(t)]
+    good = []
+    for pos, y, mo, d in sorted(raw):
+        try:
+            day = datetime.date(y, mo, d)
+        except ValueError:
+            continue
+        if day <= TODAY:  # future dates are deadlines, not publish dates
+            good.append((pos, day))
+    return good
+
+
+def pick_date(text, title):
+    """Publish date = first date within 300 chars after the page's own title (ignores menu/widget dates)."""
+    t, tt = norm(text), norm(title).strip()
+    starts = [m.start() for m in re.finditer(re.escape(tt), t)] if tt else []
+    for pos, day in parse_dates(t):
+        if any(p <= pos <= p + len(tt) + 300 for p in starts):
+            return day.isoformat()
+    return None
+
+
+def detail(link, title=""):
     soup = BeautifulSoup(get(link), "html.parser")
-    pub = None
-    for d, mo, y in DATE_RE.findall(soup.get_text(" ", strip=True)):
-        day = datetime.date(int(y), MONTHS.split("|").index(mo) + 1, int(d))
-        if day <= TODAY:  # skip future dates (deadlines)
-            pub = day.isoformat()
-            break
+    pub = pick_date(soup.get_text(" ", strip=True), title)
     files = [{"name": a.get_text(strip=True) or a["href"].split("/")[-1], "url": urljoin(link, a["href"])}
              for a in soup.find_all("a", href=True) if "/Eklenti/" in a["href"]]
     return pub, files
@@ -149,7 +173,7 @@ def main():
     sources = json.load(open("sources.json", encoding="utf-8"))
     old = json.load(open("data.json", encoding="utf-8")) if os.path.exists("data.json") else {}
     items = {i["link"]: i for i in old.get("items", [])}
-    health, budget = [], 80  # max detail pages per run; rest is picked up next run
+    health, budget = [], 150  # max detail pages per run; the rest is picked up next run
     for s in sources:
         try:
             soup = BeautifulSoup(get(s["url"], not s.get("insecure", False)), "html.parser")
@@ -161,21 +185,36 @@ def main():
         for link, (title, section) in found.items():
             if link in items:
                 continue
-            pub, files = None, []
+            pub, files, dv = None, [], 0
             if s["type"] == "tr":
                 if budget <= 0:
                     continue
                 budget -= 1
                 try:
-                    pub, files = detail(link)
+                    pub, files = detail(link, title)
+                    dv = 2
                 except Exception:
                     pass
                 time.sleep(1)
             sc, matched = score(title, section, files)
             items[link] = {"title": title, "link": link, "source": s["name"], "category": s["category"],
                            "section": section, "first_seen": TODAY.isoformat(), "published": pub,
-                           "files": files, "score": sc, "matched": matched}
+                           "files": files, "score": sc, "matched": matched, "date_v": dv}
         time.sleep(1)
+    # re-read publish dates of older items (new date rules, version 2); best-scoring first, budget-limited
+    tr_names = {s["name"] for s in sources if s["type"] == "tr"}
+    for it in sorted(items.values(), key=lambda i: -i["score"]):
+        if budget <= 0:
+            break
+        if it["source"] in tr_names and it.get("date_v") != 2:
+            budget -= 1
+            try:
+                it["published"], files = detail(it["link"], it["title"])
+                it["files"] = files or it["files"]
+                it["date_v"] = 2
+            except Exception:
+                pass
+            time.sleep(1)
     names = {s["name"] for s in sources}
     items = {l: i for l, i in items.items() if i["source"] in names}  # dropped sources disappear
     for it in items.values():  # re-score everything so keyword edits apply to old items

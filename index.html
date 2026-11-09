@@ -50,50 +50,148 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 .chip button{border:0;background:none;padding:0 6px;font-size:16px;line-height:1.3;color:var(--red)}
 .save{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--red);padding:10px 0;margin-top:16px;display:flex;gap:12px;align-items:center}
 @media (max-width:640px){.add{grid-template-columns:1fr}.item{grid-template-columns:50px 1fr}.ring{width:46px;height:46px;font-size:16px}}
+.files details{display:inline}.files summary{display:inline;cursor:pointer;color:var(--red);font-size:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><div><h1>Tender Tracker</h1><p class="sub" id="upd">Loading…</p></div>
-<div class="lang" role="group" aria-label="Title language"><button data-l="tr">Türkçe</button><button data-l="en">English</button><button data-l="ko">한국어</button></div></header>
-<div class="tools"><button class="pri" id="run">Update now</button><span id="runstat" aria-live="polite"></span></div>
-<details id="tokbox"><summary>Connect GitHub (needed to run the scraper and save changes)</summary>
-<p>Create a fine-grained token for this repository only, with <b>Actions</b> and <b>Contents</b> both set to Read and write, expiring in 30 days. Paste it once. It stays in this browser only.</p>
-<input type="password" id="tok" placeholder="github_pat_…" aria-label="GitHub token"> <button id="savetok">Save token</button> <button id="cleartok">Remove token</button></details>
-<nav class="tabs"><button class="on" data-p="opps">Opportunities</button><button data-p="saved" id="savedtab">Saved</button><button data-p="srcs">Sources</button><button data-p="kws">Keywords</button></nav>
+<header><div><h1 id="ttl" data-i18n="title"></h1><p class="sub" id="upd"></p></div>
+<div class="lang" role="group" data-i18n-aria="lang_aria"><button data-l="tr">Türkçe</button><button data-l="en">English</button><button data-l="ko">한국어</button></div></header>
+<div class="tools"><button class="pri" id="run" data-i18n="update"></button><span id="runstat" aria-live="polite"></span></div>
+<details id="tokbox"><summary data-i18n="tok_sum"></summary>
+<p data-i18n="tok_help"></p>
+<input type="password" id="tok" placeholder="github_pat_…" aria-label="GitHub token"> <button id="savetok" data-i18n="tok_save"></button> <button id="cleartok" data-i18n="tok_clear"></button></details>
+<nav class="tabs"><button class="on" data-p="opps" data-i18n="tab_opps"></button><button data-p="saved" id="savedtab"></button><button data-p="srcs" data-i18n="tab_srcs"></button><button data-p="kws" data-i18n="tab_kws"></button></nav>
 
 <section id="opps">
-<div class="types" id="types" role="group" aria-label="Content type"></div>
-<div class="bar"><input type="search" id="q" placeholder="Search titles" aria-label="Search titles">
-<select id="min" aria-label="Minimum score"><option value="0">All scores</option><option value="20" selected>Score 20+</option><option value="40">Score 40+</option><option value="60">Score 60+</option><option value="70">Score 70+</option></select>
-<select id="cat" aria-label="Source type"></select><select id="src" aria-label="Source"></select><select id="st" aria-label="Status"></select>
-<select id="sort" aria-label="Sort by"><option value="score">Sort: highest score</option><option value="published">Sort: newest published</option><option value="found">Sort: newest found</option></select></div>
-<div class="count" id="count"></div><div id="list"></div><p><button id="more" hidden>Show more</button></p>
+<div class="types" id="types" role="group" data-i18n-aria="types_aria"></div>
+<div class="bar"><input type="search" id="q" data-i18n-ph="q_ph" data-i18n-aria="q_ph">
+<select id="min" data-i18n-aria="min_aria"><option value="0" data-i18n="min_all"></option><option value="20" selected data-n="20"></option><option value="40" data-n="40"></option><option value="60" data-n="60"></option><option value="70" data-n="70"></option></select>
+<select id="cat" data-i18n-aria="cat_aria"></select><select id="src" data-i18n-aria="src_aria"></select><select id="st" data-i18n-aria="st_aria"></select>
+<select id="sort" data-i18n-aria="sort_aria"><option value="score" data-i18n="sort_score"></option><option value="published" data-i18n="sort_published"></option><option value="found" data-i18n="sort_found"></option></select></div>
+<div class="count" id="count"></div><div id="list"></div><p><button id="more" hidden data-i18n="more"></button></p>
 </section>
 
 <section id="srcs" hidden>
-<p class="meta">Pages the scraper checks. Type <b>tr</b> is for saglik.gov.tr sites, <b>list</b> is for any other page that lists announcements.</p>
-<table><thead><tr><th>Name</th><th>Type</th><th>Category</th><th>Last run</th><th></th></tr></thead><tbody id="srows"></tbody></table>
-<div class="add"><input id="aurl" placeholder="Paste a link, https://…" aria-label="Source link"><input id="aname" placeholder="Name (optional)" aria-label="Source name">
-<select id="atype" aria-label="Type"><option value="">Type: auto</option><option>tr</option><option>list</option></select>
-<select id="acat" aria-label="Category"></select><button class="pri" id="aadd">Add source</button></div>
+<p class="meta" data-i18n="srcs_help"></p>
+<table><thead><tr><th data-i18n="th_name"></th><th data-i18n="th_type"></th><th data-i18n="th_cat"></th><th data-i18n="th_last"></th><th></th></tr></thead><tbody id="srows"></tbody></table>
+<div class="add"><input id="aurl" data-i18n-ph="a_url_ph" data-i18n-aria="a_url_ph"><input id="aname" data-i18n-ph="a_name_ph" data-i18n-aria="a_name_ph">
+<select id="atype" data-i18n-aria="th_type"><option value="" data-i18n="a_type_auto"></option><option>tr</option><option>list</option></select>
+<select id="acat" data-i18n-aria="th_cat"></select><button class="pri" id="aadd" data-i18n="a_add"></button></div>
 </section>
 
 <section id="kws" hidden>
-<p class="meta">Score = sum of category weights for every category that has a matching term (title and attachment names). Noise terms use a negative weight.</p>
+<p class="meta" data-i18n="kw_help"></p>
 <div id="kwlist"></div>
 </section>
-<div class="save" id="savebar" hidden><span id="dirty">Unsaved changes</span><button class="pri" id="save">Save and update</button></div>
-<p class="meta" style="margin-top:30px">Scores come from keyword rules only. Korean summaries are not connected yet.</p>
+<div class="save" id="savebar" hidden><span id="dirty"></span><button class="pri" id="save" data-i18n="save_update"></button></div>
+<p class="meta" style="margin-top:30px" data-i18n="footer"></p>
 </div>
 <script>
 const REPO="ardacaniren/ihaletakip",API="https://api.github.com/repos/"+REPO;
 const STATUSES=["New","Pre-spec activity","Tender published","Bidding active","Won","Lost"];
 const CATS=["Provincial","Ministry","Research & grants","University BAP","News","Other"];
-const KWNAMES={product:"Product terms (InBody, body composition)",brand:"Brand names (InBody and competitors)",body_metrics:"Body metrics and measurements",clinical_dept:"Clinical departments",purchase_intent:"Purchase signals",device_generic:"Generic device terms",investment_signal:"Investment signals",negative:"Noise filter (lowers score)"};
-let items=[],sources=[],kw={categories:{}},health={},saved={},shown=50,dirty=new Set(),lang="tr";
+const I18N={
+tr:{title:"İhale Takip",update:"Şimdi güncelle",lang_aria:"Dil",
+tok_sum:"GitHub'a bağlan (taramayı çalıştırmak ve değişiklikleri kaydetmek için gerekli)",
+tok_help:"Yalnızca bu depo için ince ayarlı (fine-grained) bir token oluşturun: <b>Actions</b> ve <b>Contents</b> izinlerinin ikisi de Read and write, süre 30 gün. Bir kez yapıştırın. Yalnızca bu tarayıcıda saklanır.",
+tok_save:"Token'ı kaydet",tok_clear:"Token'ı sil",
+tab_opps:"Fırsatlar",tab_saved:"Kaydedilenler ({n})",tab_srcs:"Kaynaklar",tab_kws:"Anahtar kelimeler",
+types_aria:"İçerik türü",ty_all:"Tümü",ty_bid:"İhaleler",ty_ann:"Duyurular",ty_news:"Haberler",ty_grants:"Hibe ve araştırma",
+q_ph:"Başlıklarda ara",min_aria:"Minimum puan",min_all:"Tüm puanlar",min_n:"Puan {n}+",cat_aria:"Kaynak türü",src_aria:"Kaynak",st_aria:"Durum",sort_aria:"Sırala",
+sort_score:"Sırala: en yüksek puan",sort_published:"Sırala: en yeni yayın",sort_found:"Sırala: en yeni bulunan",
+all_cat:"Tüm kaynak türleri",all_src:"Tüm kaynaklar",all_st:"Tüm durumlar",more:"Daha fazla göster",
+srcs_help:"Tarayıcının kontrol ettiği sayfalar. <b>tr</b> türü saglik.gov.tr siteleri, <b>list</b> türü duyuru listeleyen diğer sayfalar içindir.",
+th_name:"Ad",th_type:"Tür",th_cat:"Kategori",th_last:"Son çalışma",a_url_ph:"Bağlantıyı yapıştırın, https://…",a_name_ph:"Ad (isteğe bağlı)",a_type_auto:"Tür: otomatik",a_add:"Kaynak ekle",
+kw_help:"Puan = eşleşen terimi olan her kategorinin ağırlıklarının toplamı (başlık ve ek dosya adları). Gürültü terimleri negatif ağırlık kullanır.",
+unsaved:"Kaydedilmemiş değişiklikler: {l}. Güncellediğinizde kaydedilir.",save_update:"Kaydet ve güncelle",
+footer:"Puanlar yalnızca anahtar kelime kurallarından gelir. Korece özetler henüz bağlı değil.",
+upd_data:"Veri: {d}. Anahtar kelime kurallarıyla 0–100 puanlandı.",upd_none:"Henüz veri yok. Şimdi güncelle'ye basın.",upd_err:"data.json yüklenemedi. Sayfayı dosya olarak değil, GitHub Pages üzerinden açın.",upd_load:"Yükleniyor…",
+saved_note:"{n} kayıtlı. Kayıtlı öğeler tüm ekiple paylaşılır.",matching:"{n} eşleşen (puan {m}+ ve filtreleriniz). Toplam {t} öğe toplandı, kalanı ilgisiz olduğu için gizlendi.",
+orig:"Türkçe orijinal: ",translating:"Çevriliyor…",unavail:"Çeviri yok, Türkçe gösteriliyor",
+meta_pub:"yayın {d}",meta_unk:"yayın tarihi bilinmiyor",meta_found:"bulundu {d}",nodate:"Tarih yok",matched:"eşleşen: ",ko_sum:"한국어 요약: henüz bağlı değil",
+star_rm:"Kayıtlılardan çıkar",star_add:"Bu öğeyi kaydet",star_on:"Tüm ekip için kayıtlı",star_off:"Tüm ekip için kaydet",files_more:"+{n} dosya daha",
+empty:"Bu filtrelerle eşleşen yok. Minimum puanı düşürün veya aramayı temizleyin.",
+not_run:"henüz çalışmadı",items_n:"{n} öğe",remove:"Kaldır",remove_aria:"{n} kaynağını kaldır",weight:"ağırlık",weight_aria:"Ağırlık",add_term:"Terim ekle",add:"Ekle",new_term:"Yeni terim",rm_term:"{t} terimini kaldır",
+s_connect_star:"Öğeleri kaydetmek için GitHub'a bağlanın. Kayıtlı öğeler tüm ekiple paylaşılır.",s_unstar:"Kayıtlılardan çıkarıldı.",s_star:"Tüm ekip için kaydedildi.",
+s_starfail:"Kaydedilemedi ({e}). Token'ın Contents: Read and write izni olmalı.",s_conflict:"Başka biri aynı anda kaydetti, tekrar deneyin",
+s_last:"Son tarama: {d} {tm}, {s}",s_last_na:"Son tarama: bilinmiyor",s_connect:"Önce GitHub'a bağlanın (token'ın Actions ve Contents: Read and write izni olmalı).",
+s_saving:"Değişiklikleriniz kaydediliyor…",s_savefail:"Kaydedilemedi ({e}). Token'ın Contents: Read and write izni olmalı.",s_starting:"Tarayıcı başlatılıyor…",
+s_nostart:"Başlatılamadı (HTTP {c}). Token'ın Actions: Read and write izni olmalı.",s_done:"Tarama: {c}. Sitenin yayınlanması bekleniyor…",s_running:"Tarama çalışıyor…",
+s_waiting:"GitHub'ın çalıştırmayı başlatması bekleniyor…",s_long:"10 dakikadan uzun sürdü. Actions sekmesine bakın.",
+s_tok_saved:"Token bu tarayıcıda kaydedildi.",s_tok_fail:"Token kaydedilemedi.",s_tok_rm:"Token silindi.",al_url:"https:// ile başlayan tam bir bağlantı girin",al_dup:"Bu bağlantı zaten listede.",
+"st_New":"Yeni","st_Pre-spec activity":"Şartname öncesi","st_Tender published":"İhale yayınlandı","st_Bidding active":"Teklif aşamasında","st_Won":"Kazanıldı","st_Lost":"Kaybedildi",
+"cat_Provincial":"İl müdürlüğü","cat_Ministry":"Bakanlık","cat_Research & grants":"Araştırma ve hibe","cat_University BAP":"Üniversite BAP","cat_News":"Haber","cat_Other":"Diğer",
+kw_product:"Ürün terimleri (InBody, vücut kompozisyonu)",kw_brand:"Marka adları (InBody ve rakipler)",kw_body_metrics:"Vücut ölçümleri",kw_clinical_dept:"Klinik birimler",kw_purchase_intent:"Satın alma sinyalleri",kw_device_generic:"Genel cihaz terimleri",kw_investment_signal:"Yatırım sinyalleri",kw_negative:"Gürültü filtresi (puanı düşürür)"},
+en:{title:"Tender Tracker",update:"Update now",lang_aria:"Language",
+tok_sum:"Connect GitHub (needed to run the scraper and save changes)",
+tok_help:"Create a fine-grained token for this repository only, with <b>Actions</b> and <b>Contents</b> both set to Read and write, expiring in 30 days. Paste it once. It stays in this browser only.",
+tok_save:"Save token",tok_clear:"Remove token",
+tab_opps:"Opportunities",tab_saved:"Saved ({n})",tab_srcs:"Sources",tab_kws:"Keywords",
+types_aria:"Content type",ty_all:"All",ty_bid:"Bids & tenders",ty_ann:"Announcements",ty_news:"News",ty_grants:"Grants & research",
+q_ph:"Search titles",min_aria:"Minimum score",min_all:"All scores",min_n:"Score {n}+",cat_aria:"Source type",src_aria:"Source",st_aria:"Status",sort_aria:"Sort by",
+sort_score:"Sort: highest score",sort_published:"Sort: newest published",sort_found:"Sort: newest found",
+all_cat:"All source types",all_src:"All sources",all_st:"All statuses",more:"Show more",
+srcs_help:"Pages the scraper checks. Type <b>tr</b> is for saglik.gov.tr sites, <b>list</b> is for any other page that lists announcements.",
+th_name:"Name",th_type:"Type",th_cat:"Category",th_last:"Last run",a_url_ph:"Paste a link, https://…",a_name_ph:"Name (optional)",a_type_auto:"Type: auto",a_add:"Add source",
+kw_help:"Score = sum of category weights for every category that has a matching term (title and attachment names). Noise terms use a negative weight.",
+unsaved:"Unsaved changes: {l}. They are saved when you update.",save_update:"Save and update",
+footer:"Scores come from keyword rules only. Korean summaries are not connected yet.",
+upd_data:"Data from {d}. Scored 0 to 100 by keyword rules.",upd_none:"No data yet. Press Update now.",upd_err:"Could not load data.json. Open this page through GitHub Pages, not as a file.",upd_load:"Loading…",
+saved_note:"{n} saved. Saved items are shared with the whole team.",matching:"{n} matching (score {m}+ and your filters). {t} items collected in total, the rest are filtered out as not relevant.",
+orig:"Turkish original: ",translating:"Translating…",unavail:"Translation unavailable, showing Turkish",
+meta_pub:"published {d}",meta_unk:"publish date unknown",meta_found:"found {d}",nodate:"No date",matched:"matched: ",ko_sum:"한국어 요약: not connected yet",
+star_rm:"Remove from saved",star_add:"Save this item",star_on:"Saved for the whole team",star_off:"Save for the whole team",files_more:"+{n} more files",
+empty:"Nothing matches these filters. Lower the minimum score or clear the search.",
+not_run:"not run yet",items_n:"{n} items",remove:"Remove",remove_aria:"Remove {n}",weight:"weight",weight_aria:"Weight",add_term:"Add a term",add:"Add",new_term:"New term",rm_term:"Remove {t}",
+s_connect_star:"Connect GitHub to save items. Saved items are shared with the whole team.",s_unstar:"Removed from saved.",s_star:"Saved for the whole team.",
+s_starfail:"Could not save ({e}). The token needs Contents: Read and write.",s_conflict:"someone else saved at the same time, try again",
+s_last:"Last scraper run: {d} {tm}, {s}",s_last_na:"Last scraper run: unavailable",s_connect:"Connect GitHub first (token needs Actions and Contents: Read and write).",
+s_saving:"Saving your changes…",s_savefail:"Save failed ({e}). The token needs Contents: Read and write.",s_starting:"Starting scraper…",
+s_nostart:"Could not start (HTTP {c}). The token needs Actions: Read and write.",s_done:"Scraper {c}. Waiting for the site to publish…",s_running:"Scraper running…",
+s_waiting:"Waiting for GitHub to start the run…",s_long:"Still running after 10 minutes. Check the Actions tab.",
+s_tok_saved:"Token saved in this browser.",s_tok_fail:"Could not save the token.",s_tok_rm:"Token removed.",al_url:"Enter a full link starting with https://",al_dup:"This link is already in the list.",
+"st_New":"New","st_Pre-spec activity":"Pre-spec activity","st_Tender published":"Tender published","st_Bidding active":"Bidding active","st_Won":"Won","st_Lost":"Lost",
+"cat_Provincial":"Provincial","cat_Ministry":"Ministry","cat_Research & grants":"Research & grants","cat_University BAP":"University BAP","cat_News":"News","cat_Other":"Other",
+kw_product:"Product terms (InBody, body composition)",kw_brand:"Brand names (InBody and competitors)",kw_body_metrics:"Body metrics and measurements",kw_clinical_dept:"Clinical departments",kw_purchase_intent:"Purchase signals",kw_device_generic:"Generic device terms",kw_investment_signal:"Investment signals",kw_negative:"Noise filter (lowers score)"},
+ko:{title:"입찰 트래커",update:"지금 업데이트",lang_aria:"언어",
+tok_sum:"GitHub 연결 (스크래퍼 실행 및 변경사항 저장에 필요)",
+tok_help:"이 저장소 전용 세분화된(fine-grained) 토큰을 만드세요. <b>Actions</b>와 <b>Contents</b> 권한을 모두 Read and write로 설정하고 만료는 30일로 합니다. 한 번만 붙여넣으면 이 브라우저에만 저장됩니다.",
+tok_save:"토큰 저장",tok_clear:"토큰 삭제",
+tab_opps:"기회",tab_saved:"저장됨 ({n})",tab_srcs:"출처",tab_kws:"키워드",
+types_aria:"콘텐츠 유형",ty_all:"전체",ty_bid:"입찰·공고",ty_ann:"안내",ty_news:"뉴스",ty_grants:"지원금·연구",
+q_ph:"제목 검색",min_aria:"최소 점수",min_all:"모든 점수",min_n:"점수 {n}+",cat_aria:"출처 유형",src_aria:"출처",st_aria:"상태",sort_aria:"정렬",
+sort_score:"정렬: 높은 점수순",sort_published:"정렬: 최신 게시순",sort_found:"정렬: 최근 발견순",
+all_cat:"모든 출처 유형",all_src:"모든 출처",all_st:"모든 상태",more:"더 보기",
+srcs_help:"스크래퍼가 확인하는 페이지입니다. <b>tr</b> 유형은 saglik.gov.tr 사이트용, <b>list</b> 유형은 공지 목록이 있는 그 밖의 페이지용입니다.",
+th_name:"이름",th_type:"유형",th_cat:"분류",th_last:"마지막 실행",a_url_ph:"링크를 붙여넣으세요, https://…",a_name_ph:"이름 (선택)",a_type_auto:"유형: 자동",a_add:"출처 추가",
+kw_help:"점수 = 일치하는 용어가 있는 각 카테고리의 가중치 합계 (제목 및 첨부파일 이름 기준). 노이즈 용어는 음수 가중치를 사용합니다.",
+unsaved:"저장되지 않은 변경사항: {l}. 업데이트할 때 저장됩니다.",save_update:"저장 후 업데이트",
+footer:"점수는 키워드 규칙만으로 계산됩니다. 한국어 요약은 아직 연결되지 않았습니다.",
+upd_data:"데이터 기준: {d}. 키워드 규칙으로 0~100점 산정.",upd_none:"아직 데이터가 없습니다. 지금 업데이트를 누르세요.",upd_err:"data.json을 불러올 수 없습니다. 파일이 아니라 GitHub Pages로 열어 주세요.",upd_load:"불러오는 중…",
+saved_note:"{n}개 저장됨. 저장한 항목은 팀 전체와 공유됩니다.",matching:"{n}개 일치 (점수 {m}+ 및 필터 적용). 총 {t}개 수집, 나머지는 관련 없어 숨겨졌습니다.",
+orig:"터키어 원문: ",translating:"번역 중…",unavail:"번역 불가, 터키어로 표시",
+meta_pub:"게시 {d}",meta_unk:"게시일 알 수 없음",meta_found:"발견 {d}",nodate:"날짜 없음",matched:"일치: ",ko_sum:"한국어 요약: 아직 연결되지 않음",
+star_rm:"저장 해제",star_add:"이 항목 저장",star_on:"팀 전체에 저장됨",star_off:"팀 전체에 저장",files_more:"파일 {n}개 더 보기",
+empty:"조건에 맞는 항목이 없습니다. 최소 점수를 낮추거나 검색어를 지워 보세요.",
+not_run:"아직 실행 안 됨",items_n:"{n}개 항목",remove:"삭제",remove_aria:"{n} 삭제",weight:"가중치",weight_aria:"가중치",add_term:"용어 추가",add:"추가",new_term:"새 용어",rm_term:"{t} 삭제",
+s_connect_star:"항목을 저장하려면 GitHub를 연결하세요. 저장한 항목은 팀 전체와 공유됩니다.",s_unstar:"저장을 해제했습니다.",s_star:"팀 전체에 저장했습니다.",
+s_starfail:"저장하지 못했습니다 ({e}). 토큰에 Contents: Read and write 권한이 필요합니다.",s_conflict:"다른 사람이 동시에 저장했습니다. 다시 시도하세요",
+s_last:"마지막 스크래퍼 실행: {d} {tm}, {s}",s_last_na:"마지막 스크래퍼 실행: 알 수 없음",s_connect:"먼저 GitHub를 연결하세요 (토큰에 Actions와 Contents: Read and write 권한 필요).",
+s_saving:"변경사항 저장 중…",s_savefail:"저장 실패 ({e}). 토큰에 Contents: Read and write 권한이 필요합니다.",s_starting:"스크래퍼 시작 중…",
+s_nostart:"시작하지 못했습니다 (HTTP {c}). 토큰에 Actions: Read and write 권한이 필요합니다.",s_done:"스크래퍼 {c}. 사이트 게시를 기다리는 중…",s_running:"스크래퍼 실행 중…",
+s_waiting:"GitHub가 실행을 시작하길 기다리는 중…",s_long:"10분이 지나도 실행 중입니다. Actions 탭을 확인하세요.",
+s_tok_saved:"토큰이 이 브라우저에 저장되었습니다.",s_tok_fail:"토큰을 저장하지 못했습니다.",s_tok_rm:"토큰을 삭제했습니다.",al_url:"https://로 시작하는 전체 링크를 입력하세요",al_dup:"이미 목록에 있는 링크입니다.",
+"st_New":"신규","st_Pre-spec activity":"사전규격 단계","st_Tender published":"입찰공고 게시","st_Bidding active":"입찰 진행 중","st_Won":"낙찰","st_Lost":"탈락",
+"cat_Provincial":"지방 보건국","cat_Ministry":"중앙부처","cat_Research & grants":"연구·지원금","cat_University BAP":"대학 BAP","cat_News":"뉴스","cat_Other":"기타",
+kw_product:"제품 용어 (InBody, 체성분)",kw_brand:"브랜드명 (InBody 및 경쟁사)",kw_body_metrics:"신체 지표 및 측정",kw_clinical_dept:"임상 부서",kw_purchase_intent:"구매 신호",kw_device_generic:"일반 기기 용어",kw_investment_signal:"투자 신호",kw_negative:"노이즈 필터 (점수 감소)"}
+};
+let items=[],sources=[],kw={categories:{}},health={},saved={},shown=50,dirty=new Set(),lang="tr",updRaw=null,updErr=false,catList=[],srcList=[];
 try{saved=JSON.parse(localStorage.getItem("status")||"{}")}catch(e){}
-try{lang=localStorage.getItem("lang")||"tr"}catch(e){}
+try{lang=localStorage.getItem("lang")||"tr";if(!I18N[lang])lang="tr"}catch(e){}
+const t=(k,v)=>{let s=(I18N[lang]&&I18N[lang][k])??I18N.en[k]??k;if(v)for(const x in v)s=s.split("{"+x+"}").join(v[x]);return s};
+const lab=(p,s)=>(I18N[lang][p+s]??I18N.en[p+s]??s);
+const LOC={tr:"tr-TR",en:"en-GB",ko:"ko-KR"};
 let tcache={},tfail=new Set();
 try{tcache=JSON.parse(localStorage.getItem("tcache")||"{}")}catch(e){}
 const tt=it=>lang==="tr"?it.title:(it["title_"+lang]||tcache[lang+"|"+it.link]||it.title);
@@ -104,27 +202,28 @@ async function fillMissing(rows){
   for(let i=0;i<need.length;i+=6){
     await Promise.all(need.slice(i,i+6).map(async({it})=>{const k=L+"|"+it.link;
       try{const r=await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl="+L+"&dt=t&q="+encodeURIComponent(it.title));
-        if(!r.ok)throw 0;const j=await r.json();const t=j[0].map(x=>x[0]).join("").trim();if(!t)throw 0;tcache[k]=t;got++}
+        if(!r.ok)throw 0;const j=await r.json();const x=j[0].map(y=>y[0]).join("").trim();if(!x)throw 0;tcache[k]=x;got++}
       catch(e){tfail.add(k)}}));
     if(L!==lang)return}
   if(got){try{localStorage.setItem("tcache",JSON.stringify(tcache))}catch(e){}renderOpps()}}
 const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fmt=d=>d?new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"No date";
-const opts=(f,a)=>`<option value="">${f}</option>`+a.map(s=>`<option>${esc(s)}</option>`).join("");
+const fmt=d=>d?new Date(d).toLocaleDateString(LOC[lang],{day:"numeric",month:"short",year:"numeric"}):t("nodate");
+const opts=(f,a,l)=>`<option value="">${esc(f)}</option>`+a.map(s=>`<option value="${esc(s)}">${esc(l?l(s):s)}</option>`).join("");
 const tok=()=>{try{return localStorage.getItem("gh_token")||""}catch(e){return ""}};
 const hdr=()=>{const h={Accept:"application/vnd.github+json"};if(tok())h.Authorization="Bearer "+tok();return h};
-const say=t=>{$("runstat").textContent=t};
-const TYPES=[{k:"bid",n:"Bids & tenders"},{k:"ann",n:"Announcements"},{k:"news",n:"News"},{k:"grants",n:"Grants & research"}];
+const say=m=>{$("runstat").textContent=m};
+const TYPES=["bid","ann","news","grants"];
 let type="all",savedOnly=false,starred=new Set();
 const fold=s=>String(s).replace(/İ/g,"i").replace(/I/g,"ı").toLowerCase().replace(/[ışğüöç]/g,c=>({"ı":"i","ş":"s","ğ":"g","ü":"u","ö":"o","ç":"c"})[c]);
 const BID_T=/\b(ihale|satin al|alim|teklif|sartname|yaklasik maliyet|dogrudan temin|pazarlik)/,BID_F=/sartname|ihale|teklif/,NOT_BID=/personel|sozlesmeli|memur|kadro|yedek|isci/;
+const FILE_KEY=/vucut|analiz|inbody|bia|kompozisyon|sartname|teklif/;
 function typeOf(it){
   if(it.category==="Research & grants"||it.category==="University BAP")return "grants";
   if(it.section==="Tenders")return "bid";
   if(it.section==="News"||it.category==="News")return "news";
-  const t=fold(it.title);
-  if((BID_T.test(t)&&!NOT_BID.test(t))||it.files.some(f=>BID_F.test(fold(f.name))))return "bid";
+  const x=fold(it.title);
+  if((BID_T.test(x)&&!NOT_BID.test(x))||it.files.some(f=>BID_F.test(fold(f.name))))return "bid";
   return "ann";}
 $("types").onclick=e=>{const b=e.target.closest("button");if(!b)return;type=b.dataset.t;shown=50;
   $("min").value=(type==="all"||type==="bid")?"20":"0";renderOpps()};
@@ -132,13 +231,30 @@ const dkey=it=>it.published||it.first_seen||"";
 const SORTS={score:(a,b)=>b.it.score-a.it.score||dkey(b.it).localeCompare(dkey(a.it)),
   published:(a,b)=>dkey(b.it).localeCompare(dkey(a.it))||b.it.score-a.it.score,
   found:(a,b)=>(b.it.first_seen||"").localeCompare(a.it.first_seen||"")||b.it.score-a.it.score};
-$("st").innerHTML=opts("All statuses",STATUSES);$("acat").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
+
+function fillSelects(){
+  const pc=$("cat").value,ps=$("src").value,pt=$("st").value,pa=$("acat").value;
+  $("cat").innerHTML=opts(t("all_cat"),catList,c=>lab("cat_",c));
+  $("src").innerHTML=opts(t("all_src"),srcList);
+  $("st").innerHTML=opts(t("all_st"),STATUSES,s=>lab("st_",s));
+  $("acat").innerHTML=CATS.map(c=>`<option value="${esc(c)}">${esc(lab("cat_",c))}</option>`).join("");
+  $("cat").value=pc;$("src").value=ps;$("st").value=pt;if(pa)$("acat").value=pa}
+function setUpd(){$("upd").textContent=updErr?t("upd_err"):updRaw===null?t("upd_load"):updRaw?t("upd_data",{d:updRaw.replace("T"," ").replace("Z"," UTC")}):t("upd_none")}
+function setDirty(){$("dirty").textContent=t("unsaved",{l:[...dirty].join(", ")})}
+function applyLang(){
+  document.documentElement.lang=lang;document.title=t("title");
+  document.querySelectorAll("[data-i18n]").forEach(e=>e.innerHTML=t(e.dataset.i18n));
+  document.querySelectorAll("[data-i18n-ph]").forEach(e=>e.placeholder=t(e.dataset.i18nPh));
+  document.querySelectorAll("[data-i18n-aria]").forEach(e=>e.setAttribute("aria-label",t(e.dataset.i18nAria)));
+  document.querySelectorAll("option[data-n]").forEach(e=>e.textContent=t("min_n",{n:e.dataset.n}));
+  document.querySelectorAll(".lang button").forEach(b=>b.classList.toggle("on",b.dataset.l===lang));
+  fillSelects();setUpd();if(dirty.size)setDirty();if(lastR!==undefined)paintLast();renderOpps();renderSrcs();renderKw()}
 
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
   savedOnly=b.dataset.p==="saved";const show=savedOnly?"opps":b.dataset.p;
   ["opps","srcs","kws"].forEach(p=>$(p).hidden=p!==show);shown=50;renderOpps();});
-function markDirty(f){dirty.add(f);$("savebar").hidden=false;$("dirty").textContent="Unsaved changes: "+[...dirty].join(", ")+". They are saved when you update."}
+function markDirty(f){dirty.add(f);$("savebar").hidden=false;setDirty()}
 
 /* opportunities */
 function setStatus(i,v){saved[items[i].link]=v;try{localStorage.setItem("status",JSON.stringify(saved))}catch(e){}renderOpps()}
@@ -146,40 +262,45 @@ function renderOpps(){
   const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value;
   const base=items.map((it,i)=>({it,i})).filter(({it})=>(savedOnly?starred.has(it.link):it.score>=min)&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
     .sort(SORTS[$("sort").value]);
-  const cnt={all:base.length};TYPES.forEach(t=>cnt[t.k]=0);base.forEach(({it})=>cnt[typeOf(it)]++);
-  $("types").innerHTML=[{k:"all",n:"All"},...TYPES].map(t=>`<button data-t="${t.k}" class="${t.k===type?"on":""}" aria-pressed="${t.k===type}">${t.n}<small>${cnt[t.k]}</small></button>`).join("");
+  const cnt={all:base.length};TYPES.forEach(k=>cnt[k]=0);base.forEach(({it})=>cnt[typeOf(it)]++);
+  $("types").innerHTML=["all",...TYPES].map(k=>`<button data-t="${k}" class="${k===type?"on":""}" aria-pressed="${k===type}">${esc(t("ty_"+k))}<small>${cnt[k]}</small></button>`).join("");
   const rows=type==="all"?base:base.filter(({it})=>typeOf(it)===type);
-  $("count").textContent=savedOnly?`${rows.length} saved. Saved items are shared with the whole team.`:`${rows.length} matching (score ${min}+ and your filters). ${items.length} items collected in total, the rest are filtered out as not relevant.`;
-  $("savedtab").textContent="Saved ("+starred.size+")";$("more").hidden=rows.length<=shown;
+  $("count").textContent=savedOnly?t("saved_note",{n:rows.length}):t("matching",{n:rows.length,m:min,t:items.length});
+  $("savedtab").textContent=t("tab_saved",{n:starred.size});$("more").hidden=rows.length<=shown;
   $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i})=>{const cur=saved[it.link]||STATUSES[0];
+    const star=starred.has(it.link);
+    const fs=[...it.files].sort((a,b)=>FILE_KEY.test(fold(b.name))-FILE_KEY.test(fold(a.name)));
+    const fl=f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`;
+    const files=fs.slice(0,4).map(fl).join("")+(fs.length>4?`<details><summary>${esc(t("files_more",{n:fs.length-4}))}</summary>${fs.slice(4).map(fl).join("")}</details>`:"");
+    const hasTr=it["title_"+lang]||tcache[lang+"|"+it.link];
     return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
     <h2 class="t" lang="${lang}"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(tt(it))}</a></h2>
-    ${lang!=="tr"?`<div class="meta" lang="tr">${(it["title_"+lang]||tcache[lang+"|"+it.link])?"Turkish original: "+esc(it.title):(tfail.has(lang+"|"+it.link)?"Translation unavailable, showing Turkish":"Translating…")}</div>`:""}
-    <div class="meta">${esc(TYPES.find(t=>t.k===typeOf(it)).n)}, ${esc(it.source)}, ${it.published?"published "+fmt(it.published):"publish date unknown"}, found ${fmt(it.first_seen)}</div>
-    ${(it.matched||[]).length?`<div class="note">matched: ${esc(it.matched.join(", "))}</div>`:""}
-    ${it.score>=70?'<div class="ko" lang="ko">한국어 요약: not connected yet</div>':""}
-    <div class="foot"><div class="files"><button class="star" onclick="toggleStar(${i})" aria-label="${starred.has(it.link)?'Remove from saved':'Save this item'}" aria-pressed="${starred.has(it.link)}" title="${starred.has(it.link)?'Saved for the whole team':'Save for the whole team'}">${starred.has(it.link)?"★":"☆"}</button>${it.files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div>
-    <select aria-label="Status" onchange="setStatus(${i},this.value)">${STATUSES.map(s=>`<option${s===cur?" selected":""}>${s}</option>`).join("")}</select></div></div></article>`}).join(""):'<p class="empty">Nothing matches these filters. Lower the minimum score or clear the search.</p>';
+    ${lang!=="tr"?`<div class="meta" lang="tr">${hasTr?esc(t("orig"))+esc(it.title):esc(tfail.has(lang+"|"+it.link)?t("unavail"):t("translating"))}</div>`:""}
+    <div class="meta">${esc(t("ty_"+typeOf(it)))}, ${esc(it.source)}, ${it.published?esc(t("meta_pub",{d:fmt(it.published)})):esc(t("meta_unk"))}, ${esc(t("meta_found",{d:fmt(it.first_seen)}))}</div>
+    ${(it.matched||[]).length?`<div class="note">${esc(t("matched"))}${esc(it.matched.join(", "))}</div>`:""}
+    ${it.score>=70?`<div class="ko" lang="ko">${esc(t("ko_sum"))}</div>`:""}
+    <div class="foot"><div class="files"><button class="star" onclick="toggleStar(${i})" aria-label="${esc(t(star?"star_rm":"star_add"))}" aria-pressed="${star}" title="${esc(t(star?"star_on":"star_off"))}">${star?"★":"☆"}</button>${files}</div>
+    <select aria-label="${esc(t("st_aria"))}" onchange="setStatus(${i},this.value)">${STATUSES.map(s=>`<option value="${esc(s)}"${s===cur?" selected":""}>${esc(lab("st_",s))}</option>`).join("")}</select></div></div></article>`}).join(""):`<p class="empty">${esc(t("empty"))}</p>`;
   fillMissing(rows.slice(0,shown));
 }
 ["q","min","cat","src","st","sort"].forEach(id=>$(id).addEventListener("input",()=>{shown=50;renderOpps()}));$("more").onclick=()=>{shown+=50;renderOpps()};
 
 /* sources */
 function renderSrcs(){$("srows").innerHTML=sources.map((s,i)=>{const h=health[s.name];
-  return `<tr><td><b>${esc(s.name)}</b><br><a class="meta" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td><td>${s.type}</td><td>${esc(s.category)}</td>
-  <td>${h?(h.ok?`<span class="ok">${h.found} items</span>`:`<span class="bad">${esc(h.error)}</span>`):"not run yet"}</td><td><button onclick="delSrc(${i})" aria-label="Remove ${esc(s.name)}">Remove</button></td></tr>`}).join("")}
+  return `<tr><td><b>${esc(s.name)}</b><br><a class="meta" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td><td>${esc(s.type)}</td><td>${esc(lab("cat_",s.category))}</td>
+  <td>${h?(h.ok?`<span class="ok">${esc(t("items_n",{n:h.found}))}</span>`:`<span class="bad">${esc(h.error)}</span>`):esc(t("not_run"))}</td><td><button onclick="delSrc(${i})" aria-label="${esc(t("remove_aria",{n:s.name}))}">${esc(t("remove"))}</button></td></tr>`}).join("")}
 function delSrc(i){sources.splice(i,1);markDirty("sources");renderSrcs()}
-$("aadd").onclick=()=>{let u;try{u=new URL($("aurl").value.trim())}catch(e){alert("Enter a full link starting with https://");return}
-  if(sources.some(s=>s.url===u.href)){alert("This link is already in the list.");return}
-  const type=$("atype").value||(u.hostname.endsWith("saglik.gov.tr")?"tr":"list");
-  sources.push({name:$("aname").value.trim()||u.hostname.replace(/^www\./,"")+u.pathname.replace(/\/$/,""),url:u.href,type,category:$("acat").value});
+$("aadd").onclick=()=>{let u;try{u=new URL($("aurl").value.trim())}catch(e){alert(t("al_url"));return}
+  if(sources.some(s=>s.url===u.href)){alert(t("al_dup"));return}
+  const ty=$("atype").value||(u.hostname.endsWith("saglik.gov.tr")?"tr":"list");
+  sources.push({name:$("aname").value.trim()||u.hostname.replace(/^www\./,"")+u.pathname.replace(/\/$/,""),url:u.href,type:ty,category:$("acat").value});
   $("aurl").value=$("aname").value="";markDirty("sources");renderSrcs()};
 
 /* keywords */
-function renderKw(){$("kwlist").innerHTML=Object.entries(kw.categories).map(([k,c])=>`<div class="kw"><h3>${KWNAMES[k]||esc(k)}
-  <label class="meta">weight <input type="number" value="${c.weight}" onchange="setW('${k}',this.value)" aria-label="Weight"></label></h3>
-  ${c.terms.map((t,i)=>`<span class="chip">${esc(t)}<button onclick="delTerm('${k}',${i})" aria-label="Remove ${esc(t)}">×</button></span>`).join("")}
-  <div><input id="n_${k}" placeholder="Add a term" aria-label="New term" onkeydown="if(event.key==='Enter')addTerm('${k}')"> <button onclick="addTerm('${k}')">Add</button></div></div>`).join("")}
+function renderKw(){$("kwlist").innerHTML=Object.entries(kw.categories).map(([k,c])=>`<div class="kw"><h3>${esc(lab("kw_",k))}
+  <label class="meta">${esc(t("weight"))} <input type="number" value="${c.weight}" onchange="setW('${k}',this.value)" aria-label="${esc(t("weight_aria"))}"></label></h3>
+  ${c.terms.map((x,i)=>`<span class="chip">${esc(x)}<button onclick="delTerm('${k}',${i})" aria-label="${esc(t("rm_term",{t:x}))}">×</button></span>`).join("")}
+  <div><input id="n_${k}" placeholder="${esc(t("add_term"))}" aria-label="${esc(t("new_term"))}" onkeydown="if(event.key==='Enter')addTerm('${k}')"> <button onclick="addTerm('${k}')">${esc(t("add"))}</button></div></div>`).join("")}
 function setW(k,v){kw.categories[k].weight=+v||0;markDirty("keywords")}
 function delTerm(k,i){kw.categories[k].terms.splice(i,1);markDirty("keywords");renderKw()}
 function addTerm(k){const v=$("n_"+k).value.trim().toLowerCase();if(!v)return;if(!kw.categories[k].terms.includes(v))kw.categories[k].terms.push(v);markDirty("keywords");renderKw();$("n_"+k).focus()}
@@ -200,13 +321,13 @@ async function saveStar(link,on){
     const body={message:"Star update from dashboard",content:b64(JSON.stringify(obj,null,1)),branch:"main"};if(sha)body.sha=sha;
     const w=await fetch(u,{method:"PUT",headers:hdr(),body:JSON.stringify(body)});
     if(w.ok)return;if(w.status!==409&&w.status!==422)throw new Error("HTTP "+w.status)}
-  throw new Error("someone else saved at the same time, try again")}
+  throw new Error(t("s_conflict"))}
 async function toggleStar(i){
   const link=items[i].link;
-  if(!tok()){$("tokbox").open=true;say("Connect GitHub to save items. Saved items are shared with the whole team.");return}
+  if(!tok()){$("tokbox").open=true;say(t("s_connect_star"));return}
   const was=starred.has(link);was?starred.delete(link):starred.add(link);renderOpps();
-  try{await saveStar(link,!was);say(was?"Removed from saved.":"Saved for the whole team.")}
-  catch(e){was?starred.add(link):starred.delete(link);renderOpps();say("Could not save ("+e.message+"). The token needs Contents: Read and write.")}}
+  try{await saveStar(link,!was);say(t(was?"s_unstar":"s_star"))}
+  catch(e){was?starred.add(link):starred.delete(link);renderOpps();say(t("s_starfail",{e:e.message}))}}
 async function loadStars(){
   try{const r=await fetch(API+"/contents/starred.json?ref=main",{headers:{...hdr(),Accept:"application/vnd.github.raw+json"}});
     if(r.ok){starred=new Set(Object.keys((await r.json()).items||{}));return}
@@ -216,31 +337,32 @@ async function loadStars(){
 /* data */
 async function jget(f){const r=await fetch(f+"?"+Date.now());if(!r.ok)throw 0;return r.json()}
 async function load(){try{await loadStars();const d=await jget("data.json");items=d.items;health={};(d.sources||[]).forEach(h=>health[h.name]=h);
-  const pc=$("cat").value,ps=$("src").value;$("cat").innerHTML=opts("All source types",[...new Set(items.map(i=>i.category))]);$("src").innerHTML=opts("All sources",[...new Set(items.map(i=>i.source))].sort());$("cat").value=pc;$("src").value=ps;
-  $("upd").textContent=d.updated?`Data from ${d.updated.replace("T"," ").replace("Z"," UTC")}. Scored 0 to 100 by keyword rules.`:"No data yet. Press Update now.";
+  catList=[...new Set(items.map(i=>i.category))];srcList=[...new Set(items.map(i=>i.source))].sort();
+  updRaw=d.updated||"";updErr=false;
   if(!dirty.has("sources")){try{sources=await jget("sources.json")}catch(e){}}
   if(!dirty.has("keywords")){try{kw=await jget("keywords.json")}catch(e){}}
-  renderOpps();renderSrcs();renderKw()}catch(e){$("upd").textContent="Could not load data.json. Open this page through GitHub Pages, not as a file."}}
+  fillSelects();setUpd();renderOpps();renderSrcs();renderKw()}catch(e){updErr=true;setUpd()}}
 async function lastRun(){try{const j=await(await fetch(API+"/actions/workflows/scrape.yml/runs?per_page=1",{headers:hdr()})).json();return j.workflow_runs&&j.workflow_runs[0]||null}catch(e){return null}}
-async function showLast(){const r=await lastRun();say(r?`Last scraper run: ${fmt(r.updated_at)} ${new Date(r.updated_at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}, ${r.status==="completed"?r.conclusion:r.status}`:"Last scraper run: unavailable")}
+let lastR=undefined;function paintLast(){const r=lastR;say(r?t("s_last",{d:fmt(r.updated_at),tm:new Date(r.updated_at).toLocaleTimeString(LOC[lang],{hour:"2-digit",minute:"2-digit"}),s:r.status==="completed"?r.conclusion:r.status}):t("s_last_na"))}
+async function showLast(){lastR=await lastRun();paintLast()}
 async function update(){
-  if(!tok()){$("tokbox").open=true;say("Connect GitHub first (token needs Actions and Contents: Read and write).");return}
+  if(!tok()){$("tokbox").open=true;say(t("s_connect"));return}
   $("run").disabled=$("save").disabled=true;const free=()=>{$("run").disabled=$("save").disabled=false};
-  try{if(dirty.has("sources")||dirty.has("keywords")){say("Saving your changes…");
+  try{if(dirty.has("sources")||dirty.has("keywords")){say(t("s_saving"));
       if(dirty.has("sources"))await putFile("sources.json",sources);if(dirty.has("keywords"))await putFile("keywords.json",kw);
       dirty.clear();$("savebar").hidden=true}}
-  catch(e){say("Save failed ("+e.message+"). The token needs Contents: Read and write.");free();return}
-  say("Starting scraper…");const before=await lastRun();
+  catch(e){say(t("s_savefail",{e:e.message}));free();return}
+  say(t("s_starting"));const before=await lastRun();
   const r=await fetch(API+"/actions/workflows/scrape.yml/dispatches",{method:"POST",headers:hdr(),body:JSON.stringify({ref:"main"})});
-  if(r.status!==204){say(`Could not start (HTTP ${r.status}). The token needs Actions: Read and write.`);free();return}
+  if(r.status!==204){say(t("s_nostart",{c:r.status}));free();return}
   for(let i=0;i<60;i++){await sleep(10000);const c=await lastRun();
-    if(c&&(!before||c.id!==before.id)){if(c.status==="completed"){say(`Scraper ${c.conclusion}. Waiting for the site to publish…`);await sleep(75000);await load();await showLast();free();return}say("Scraper running…")}else say("Waiting for GitHub to start the run…")}
-  say("Still running after 10 minutes. Check the Actions tab.");free()}
+    if(c&&(!before||c.id!==before.id)){if(c.status==="completed"){say(t("s_done",{c:c.conclusion}));await sleep(75000);await load();await showLast();free();return}say(t("s_running"))}else say(t("s_waiting"))}
+  say(t("s_long"));free()}
 $("run").onclick=update;$("save").onclick=update;
-$("savetok").onclick=()=>{try{localStorage.setItem("gh_token",$("tok").value.trim());$("tok").value="";say("Token saved in this browser.")}catch(e){say("Could not save the token.")}};
-$("cleartok").onclick=()=>{try{localStorage.removeItem("gh_token")}catch(e){}say("Token removed.")};
-document.querySelectorAll(".lang button").forEach(b=>{b.classList.toggle("on",b.dataset.l===lang);b.onclick=()=>{lang=b.dataset.l;try{localStorage.setItem("lang",lang)}catch(e){}document.querySelectorAll(".lang button").forEach(x=>x.classList.toggle("on",x===b));renderOpps()}});
-setInterval(()=>{if(!dirty.size)load()},300000);load();showLast();
+$("savetok").onclick=()=>{try{localStorage.setItem("gh_token",$("tok").value.trim());$("tok").value="";say(t("s_tok_saved"))}catch(e){say(t("s_tok_fail"))}};
+$("cleartok").onclick=()=>{try{localStorage.removeItem("gh_token")}catch(e){}say(t("s_tok_rm"))};
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{lang=b.dataset.l;try{localStorage.setItem("lang",lang)}catch(e){}applyLang()});
+setInterval(()=>{if(!dirty.size)load()},300000);applyLang();load();showLast();
 </script>
 </body>
 </html>

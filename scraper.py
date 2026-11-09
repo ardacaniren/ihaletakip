@@ -2,8 +2,11 @@
 import re, json, os, sys, time, datetime, requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # only matters for sources marked insecure
 
-H = {"User-Agent": "Mozilla/5.0"}
+H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+     "Accept": "text/html,application/xhtml+xml,*/*;q=0.8", "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.5"}
 TODAY = datetime.date.today()
 MONTHS = "Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık"
 LINK_RE = re.compile(r"/TR-(\d+)/[^/]+\.html")
@@ -37,10 +40,26 @@ def score(title, section, files):
     return max(0, min(100, total)), matched
 
 
-def get(url):
-    r = requests.get(url, timeout=20, headers=H)
-    r.raise_for_status()
-    return r.text
+def get(url, verify=True):
+    last = None
+    for _ in range(2):  # one retry for flaky connections; HTTP errors (403/404) are not retried
+        try:
+            r = requests.get(url, timeout=(10, 25), headers=H, verify=verify)
+            r.raise_for_status()
+            return r.text
+        except requests.HTTPError:
+            raise
+        except requests.RequestException as e:
+            last = e
+            time.sleep(3)
+    raise last
+
+
+def short_err(e):
+    t = str(e)
+    if "Caused by" in t:
+        t = t.split("Caused by", 1)[1]
+    return (type(e).__name__ + ": " + t.strip(" ()"))[:170]
 
 
 def add(out, a, base, section):
@@ -133,11 +152,11 @@ def main():
     health, budget = [], 80  # max detail pages per run; rest is picked up next run
     for s in sources:
         try:
-            soup = BeautifulSoup(get(s["url"]), "html.parser")
+            soup = BeautifulSoup(get(s["url"], not s.get("insecure", False)), "html.parser")
             found = tr_links(soup, s["url"]) if s["type"] == "tr" else list_links(soup, s["url"])
             health.append({"name": s["name"], "ok": True, "found": len(found)})
         except Exception as e:
-            health.append({"name": s["name"], "ok": False, "error": str(e)[:100]})
+            health.append({"name": s["name"], "ok": False, "error": short_err(e)})
             continue
         for link, (title, section) in found.items():
             if link in items:

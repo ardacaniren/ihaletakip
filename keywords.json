@@ -26,14 +26,16 @@
     "bioempedans",
     "biyoimpedans",
     "bioimpedans",
-    "empedans",
-    "impedans",
     "bia",
     "bwa",
     "inbody",
     "body composition",
     "body analyzer",
-    "bioimpedance"
+    "bioimpedance",
+    "biyoelektrik empedans",
+    "bioelektrik empedans",
+    "çok frekanslı bia",
+    "segmental analiz"
    ]
   },
   "brand": {

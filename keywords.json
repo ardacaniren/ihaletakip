@@ -8,26 +8,85 @@
    "terms": [
     "vücut kompozisyon",
     "vücut analiz",
+    "vücut yağ analiz",
+    "vücut yağ ölçüm",
+    "vücut yağ",
     "vücut sıvı",
+    "vücut su",
+    "vücut kütle",
+    "yağsız vücut",
+    "iskelet kas",
+    "kas kütle",
+    "kas analiz",
+    "yağ analiz",
+    "yağ oranı",
     "biyoelektrik",
+    "bioelektrik",
+    "biyoempedans",
+    "bioempedans",
+    "biyoimpedans",
+    "bioimpedans",
     "empedans",
-    "inbody",
-    "body composition",
+    "impedans",
     "bia",
     "bwa",
-    "kas kütlesi",
-    "yağ oranı"
+    "inbody",
+    "body composition",
+    "body analyzer",
+    "bioimpedance"
+   ]
+  },
+  "brand": {
+   "weight": 40,
+   "terms": [
+    "tanita",
+    "seca",
+    "omron",
+    "biospace",
+    "jawon",
+    "charder",
+    "bodystat",
+    "impedimed",
+    "akern",
+    "maltron",
+    "bodygram",
+    "medi-body"
+   ]
+  },
+  "body_metrics": {
+   "weight": 30,
+   "terms": [
+    "visseral yağ",
+    "bazal metabolizma",
+    "metabolik yaş",
+    "beden kitle",
+    "antropometri",
+    "hidrasyon",
+    "sıvı dengesi",
+    "kuru ağırlık",
+    "sarkopeni",
+    "malnütrisyon",
+    "faz açısı",
+    "ödem ölçüm",
+    "boy ölçer",
+    "tartı"
    ]
   },
   "clinical_dept": {
    "weight": 25,
    "terms": [
     "obezite",
+    "bariatrik",
     "beslenme ve diyetetik",
+    "beslenme",
     "diyetisyen",
+    "diyet polikliniği",
     "diyaliz",
+    "hemodiyaliz",
     "nefroloji",
     "sporcu sağlığı",
+    "spor hekimliği",
+    "spor bilimleri",
     "fizik tedavi",
     "ftr",
     "rehabilitasyon",
@@ -35,7 +94,10 @@
     "sağlıklı yaşam",
     "sağlıklı hayat merkez",
     "diyabet",
-    "geriatri"
+    "geriatri",
+    "yaşlı sağlığı",
+    "endokrin",
+    "kardiyoloji rehab"
    ]
   },
   "purchase_intent": {
@@ -43,16 +105,25 @@
    "terms": [
     "satın alınacak",
     "satın alma",
+    "mal alım",
+    "cihaz alım",
+    "malzeme alım",
     "alım ilanı",
     "alım ihale",
-    "mal alım",
-    "malzeme alım",
-    "cihaz alım",
+    "alımı",
+    "ihale ilanı",
+    "ihale doküman",
     "teknik şartname",
+    "idari şartname",
     "yaklaşık maliyet",
+    "piyasa fiyat araştırma",
     "doğrudan temin",
     "pazarlık usul",
-    "teklif"
+    "açık ihale",
+    "teklif cetveli",
+    "teklif formu",
+    "muadili",
+    "kiralama yoluyla cihaz"
    ]
   },
   "device_generic": {
@@ -61,8 +132,12 @@
     "tıbbi cihaz",
     "medikal cihaz",
     "analizör",
+    "analiz cihaz",
+    "ölçüm cihaz",
+    "demirbaş",
     "ekipman",
-    "tefrişat"
+    "tefrişat",
+    "ünite"
    ]
   },
   "investment_signal": {
@@ -73,24 +148,46 @@
     "hastane inşaat",
     "şehir hastanesi",
     "ek bina",
-    "sağlık kampüsü"
+    "sağlık kampüsü",
+    "sağlıklı hayat merkezi açıl",
+    "obezite merkezi",
+    "diyaliz merkezi",
+    "yatırım ödeneği"
    ]
   },
   "negative": {
    "weight": -40,
    "terms": [
     "kantin",
-    "kiralama",
+    "kiralama ihale",
     "sınav sonuç",
     "kura",
     "yerleştirme",
     "atama",
     "personel alım",
-    "yemek listesi",
+    "personel çalıştır",
+    "yemek",
+    "temizlik hizmet",
+    "güvenlik hizmet",
+    "araç kiralama",
     "iup",
     "işgücü uyum",
+    "iş gücü uyum",
     "veda programı",
-    "bayram"
+    "bayram",
+    "haftası",
+    "günü",
+    "basın bildirisi",
+    "farkındalık",
+    "ziyaret",
+    "tören",
+    "taziye",
+    "kutlu",
+    "nöbetçi eczane",
+    "sertifikalı eğitim",
+    "sarf malzeme",
+    "ilaç alım",
+    "aşı"
    ]
   }
  }

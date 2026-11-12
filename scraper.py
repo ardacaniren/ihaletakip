@@ -67,13 +67,18 @@ def get(url, verify=True):
     last = None
     for _ in range(2):  # one retry for flaky connections; HTTP errors (403/404) are not retried
         try:
-            r = requests.get(url, timeout=(10, 25), headers=H, verify=verify)
+            r = requests.get(url, timeout=(8, 25), headers=H, verify=verify)
             r.raise_for_status()
             return r.text
         except requests.HTTPError:
             raise
         except requests.RequestException as e:
             last = e
+            msg = str(e)
+            # unreachable from this network (DNS failure, connect timeout, SSL problem): a retry will not help
+            if isinstance(e, (requests.ConnectTimeout, requests.exceptions.SSLError)) or \
+               "Name or service not known" in msg or "NameResolution" in msg or "Failed to resolve" in msg:
+                break
             time.sleep(3)
     raise last
 

@@ -300,8 +300,18 @@ def main():
             if s["type"] == "ilan":
                 found, extra = ilan_links(s)
             else:
-                soup = BeautifulSoup(get(s["url"], not s.get("insecure", False)), "html.parser")
-                found = tr_links(soup, s["url"]) if s["type"] == "tr" else list_links(soup, s["url"])
+                found = {}
+                for p in range(1, int(s.get("pages", 1)) + 1):  # optional "pages": N reads the first N result pages
+                    u = s["url"] if p == 1 else s["url"] + ("&" if "?" in s["url"] else "?") + f'{s.get("page_param", "sayfa")}={p}'
+                    try:
+                        soup = BeautifulSoup(get(u, not s.get("insecure", False)), "html.parser")
+                    except Exception:
+                        if p == 1:
+                            raise
+                        break  # a later page failing keeps what page 1 gave
+                    found.update(tr_links(soup, u) if s["type"] == "tr" else list_links(soup, u))
+                    if p > 1 or int(s.get("pages", 1)) > 1:
+                        time.sleep(1)
             if s.get("section"):  # optional: treat everything on this page as e.g. tenders
                 found = {l: (v[0], s["section"]) for l, v in found.items()}
             health.append({"name": s["name"], "ok": True, "found": len(found), "streak": 0})

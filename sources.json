@@ -667,6 +667,8 @@
   "url": "https://ihaleilanlar.com/ihaleler/sektor/tibbi-cihaz-33",
   "type": "list",
   "category": "Other",
-  "section": "Tenders"
+  "section": "Tenders",
+  "pages": 2,
+  "page_param": "sayfa"
  }
 ]

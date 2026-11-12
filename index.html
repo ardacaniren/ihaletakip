@@ -54,6 +54,11 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;border:1px solid currentColor;margin-right:6px}.badge.comp{color:#b45309}.badge.own{color:#2e7d32}
 .notes{display:flex;gap:6px;margin-top:6px}.notes input{font:inherit;font-size:13px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;min-width:0}.notes .own{width:110px}.notes .nt{flex:1}
 #sum h3{margin:18px 0 6px}#sum ul{padding-left:18px;margin:4px 0}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 16px}.kpi div{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#fff}.kpi b{display:block;font-size:26px;line-height:1.1;color:var(--red)}.kpi span{font-size:13px;color:var(--mute)}
+@media(max-width:640px){.kpi{grid-template-columns:repeat(2,1fr)}}
+@media print{.tools,nav.tabs,.bar,#savebar,#tokbox,.lang,#exp,#showdis,.types{display:none!important}body{background:#fff}}
+nav.tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}nav.tabs button{white-space:nowrap;flex:none}
+.item>div{min-width:0}.notes .nt{width:0}
 </style>
 </head>
 <body>
@@ -67,6 +72,7 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 <nav class="tabs"><button class="on" data-p="opps" data-i18n="tab_opps"></button><button data-p="saved" id="savedtab"></button><button data-p="srcs" data-i18n="tab_srcs"></button><button data-p="kws" data-i18n="tab_kws"></button><button data-p="sum" data-i18n="tab_sum"></button></nav>
 
 <section id="opps">
+<div class="kpi" id="kpi"></div>
 <div class="types" id="types" role="group" data-i18n-aria="types_aria"></div>
 <div class="bar"><input type="search" id="q" data-i18n-ph="q_ph" data-i18n-aria="q_ph">
 <select id="min" data-i18n-aria="min_aria"><option value="0" data-i18n="min_all"></option><option value="20" selected data-n="20"></option><option value="40" data-n="40"></option><option value="60" data-n="60"></option><option value="70" data-n="70"></option></select>
@@ -116,7 +122,7 @@ saved_note:"{n} kayıtlı. Kayıtlı öğeler tüm ekiple paylaşılır.",matchi
 orig:"Türkçe orijinal: ",translating:"Çevriliyor…",unavail:"Çeviri yok, Türkçe gösteriliyor",
 meta_pub:"yayın {d}",meta_unk:"yayın tarihi bilinmiyor",meta_found:"bulundu {d}",nodate:"Tarih yok",matched:"eşleşen: ",ko_sum:"한국어 요약: henüz bağlı değil",
 star_rm:"Kayıtlılardan çıkar",star_add:"Bu öğeyi kaydet",star_on:"Tüm ekip için kayıtlı",star_off:"Tüm ekip için kaydet",files_more:"+{n} dosya daha",
-exp:"Listeyi CSV olarak indir",dis_on:"İlgisiz olarak işaretle (herkes için gizlenir)",dis_off:"İlgisiz işaretini kaldır",show_dis:"İlgisiz işaretlenenleri göster",comp:"Rakip: {n}",own:"InBody geçiyor",alts:"ayrıca: {s}",owner_ph:"Sorumlu",note_ph:"Not",tab_sum:"Haftalık özet",sum_h_new:"Son 7 günde bulunan yüksek puanlı ilanlar (70+)",sum_none:"Son 7 günde 70+ puanlı yeni ilan yok.",sum_counts:"Son 7 günde bulunan ilgili ilan sayısı (puan 20+): {n}",sum_src:"Tüm kaynaklar (son 7 günde yeni ilan sayısına göre)",sum_new:"Yeni (7 gün, puan 20+)",sum_tot:"Son taramada bulunan",sum_err:"hata",sum_fail:"Üst üste 3+ taramada hata veren kaynaklar",streak:"{n} taramadır hata",s_dis:"İlgisiz olarak işaretlendi, herkes için gizlendi.",s_undis:"İlgisiz işareti kaldırıldı.",s_note_ok:"Not kaydedildi.",empty:"Bu filtrelerle eşleşen yok. Minimum puanı düşürün veya aramayı temizleyin.",
+exp:"Listeyi CSV olarak indir",kpi_rel:"İlgili ilan (puan 20+)",kpi_hot:"Yüksek puan (70+)",kpi_new:"Bu hafta yeni",kpi_saved:"Kaydedilen",dis_on:"İlgisiz olarak işaretle (herkes için gizlenir)",dis_off:"İlgisiz işaretini kaldır",show_dis:"İlgisiz işaretlenenleri göster",comp:"Rakip: {n}",own:"InBody geçiyor",alts:"ayrıca: {s}",owner_ph:"Sorumlu",note_ph:"Not",tab_sum:"Haftalık özet",sum_h_new:"Son 7 günde bulunan yüksek puanlı ilanlar (70+)",sum_none:"Son 7 günde 70+ puanlı yeni ilan yok.",sum_counts:"Son 7 günde bulunan ilgili ilan sayısı (puan 20+): {n}",sum_src:"Tüm kaynaklar (son 7 günde yeni ilan sayısına göre)",sum_new:"Yeni (7 gün, puan 20+)",sum_tot:"Son taramada bulunan",sum_err:"hata",sum_fail:"Üst üste 3+ taramada hata veren kaynaklar",streak:"{n} taramadır hata",s_dis:"İlgisiz olarak işaretlendi, herkes için gizlendi.",s_undis:"İlgisiz işareti kaldırıldı.",s_note_ok:"Not kaydedildi.",empty:"Bu filtrelerle eşleşen yok. Minimum puanı düşürün veya aramayı temizleyin.",
 not_run:"henüz çalışmadı",items_n:"{n} öğe",remove:"Kaldır",remove_aria:"{n} kaynağını kaldır",weight:"ağırlık",weight_aria:"Ağırlık",add_term:"Terim ekle",add:"Ekle",new_term:"Yeni terim",rm_term:"{t} terimini kaldır",
 s_connect_star:"Öğeleri kaydetmek için GitHub'a bağlanın. Kayıtlı öğeler tüm ekiple paylaşılır.",s_unstar:"Kayıtlılardan çıkarıldı.",s_star:"Tüm ekip için kaydedildi.",
 s_starfail:"Kaydedilemedi ({e}). Token'ın Contents: Read and write izni olmalı.",s_conflict:"Başka biri aynı anda kaydetti, tekrar deneyin",
@@ -147,7 +153,7 @@ saved_note:"{n} saved. Saved items are shared with the whole team.",matching:"{n
 orig:"Turkish original: ",translating:"Translating…",unavail:"Translation unavailable, showing Turkish",
 meta_pub:"published {d}",meta_unk:"publish date unknown",meta_found:"found {d}",nodate:"No date",matched:"matched: ",ko_sum:"한국어 요약: not connected yet",
 star_rm:"Remove from saved",star_add:"Save this item",star_on:"Saved for the whole team",star_off:"Save for the whole team",files_more:"+{n} more files",
-exp:"Download list as CSV",dis_on:"Mark as not relevant (hidden for everyone)",dis_off:"Remove not-relevant mark",show_dis:"Show items marked not relevant",comp:"Competitor: {n}",own:"Mentions InBody",alts:"also in: {s}",owner_ph:"Owner",note_ph:"Note",tab_sum:"Weekly summary",sum_h_new:"High-scoring items found in the last 7 days (70+)",sum_none:"No new items scoring 70+ in the last 7 days.",sum_counts:"Relevant items found in the last 7 days (score 20+): {n}",sum_src:"All sources (by new items in the last 7 days)",sum_new:"New (7 days, score 20+)",sum_tot:"Found in last run",sum_err:"error",sum_fail:"Sources failing 3 or more runs in a row",streak:"failing for {n} runs",s_dis:"Marked as not relevant, hidden for everyone.",s_undis:"Not-relevant mark removed.",s_note_ok:"Note saved.",empty:"Nothing matches these filters. Lower the minimum score or clear the search.",
+exp:"Download list as CSV",kpi_rel:"Relevant items (score 20+)",kpi_hot:"High score (70+)",kpi_new:"New this week",kpi_saved:"Saved",dis_on:"Mark as not relevant (hidden for everyone)",dis_off:"Remove not-relevant mark",show_dis:"Show items marked not relevant",comp:"Competitor: {n}",own:"Mentions InBody",alts:"also in: {s}",owner_ph:"Owner",note_ph:"Note",tab_sum:"Weekly summary",sum_h_new:"High-scoring items found in the last 7 days (70+)",sum_none:"No new items scoring 70+ in the last 7 days.",sum_counts:"Relevant items found in the last 7 days (score 20+): {n}",sum_src:"All sources (by new items in the last 7 days)",sum_new:"New (7 days, score 20+)",sum_tot:"Found in last run",sum_err:"error",sum_fail:"Sources failing 3 or more runs in a row",streak:"failing for {n} runs",s_dis:"Marked as not relevant, hidden for everyone.",s_undis:"Not-relevant mark removed.",s_note_ok:"Note saved.",empty:"Nothing matches these filters. Lower the minimum score or clear the search.",
 not_run:"not run yet",items_n:"{n} items",remove:"Remove",remove_aria:"Remove {n}",weight:"weight",weight_aria:"Weight",add_term:"Add a term",add:"Add",new_term:"New term",rm_term:"Remove {t}",
 s_connect_star:"Connect GitHub to save items. Saved items are shared with the whole team.",s_unstar:"Removed from saved.",s_star:"Saved for the whole team.",
 s_starfail:"Could not save ({e}). The token needs Contents: Read and write.",s_conflict:"someone else saved at the same time, try again",
@@ -178,7 +184,7 @@ saved_note:"{n}개 저장됨. 저장한 항목은 팀 전체와 공유됩니다.
 orig:"터키어 원문: ",translating:"번역 중…",unavail:"번역 불가, 터키어로 표시",
 meta_pub:"게시 {d}",meta_unk:"게시일 알 수 없음",meta_found:"발견 {d}",nodate:"날짜 없음",matched:"일치: ",ko_sum:"한국어 요약: 아직 연결되지 않음",
 star_rm:"저장 해제",star_add:"이 항목 저장",star_on:"팀 전체에 저장됨",star_off:"팀 전체에 저장",files_more:"파일 {n}개 더 보기",
-exp:"목록을 CSV로 다운로드",dis_on:"관련 없음으로 표시 (모두에게 숨김)",dis_off:"관련 없음 표시 해제",show_dis:"관련 없음으로 표시한 항목 보기",comp:"경쟁사: {n}",own:"InBody 언급",alts:"다른 출처: {s}",owner_ph:"담당자",note_ph:"메모",tab_sum:"주간 요약",sum_h_new:"최근 7일간 발견된 고득점 공고 (70+)",sum_none:"최근 7일간 70점 이상 신규 공고가 없습니다.",sum_counts:"최근 7일간 발견된 관련 공고 수 (20점 이상): {n}",sum_src:"전체 출처 (최근 7일 신규 공고 순)",sum_new:"신규 (7일, 20점 이상)",sum_tot:"최근 실행에서 발견",sum_err:"오류",sum_fail:"3회 이상 연속 오류가 난 출처",streak:"{n}회 연속 오류",s_dis:"관련 없음으로 표시했습니다. 모두에게 숨겨집니다.",s_undis:"관련 없음 표시를 해제했습니다.",s_note_ok:"메모를 저장했습니다.",empty:"조건에 맞는 항목이 없습니다. 최소 점수를 낮추거나 검색어를 지워 보세요.",
+exp:"목록을 CSV로 다운로드",kpi_rel:"관련 공고 (20점 이상)",kpi_hot:"고득점 (70+)",kpi_new:"이번 주 신규",kpi_saved:"저장됨",dis_on:"관련 없음으로 표시 (모두에게 숨김)",dis_off:"관련 없음 표시 해제",show_dis:"관련 없음으로 표시한 항목 보기",comp:"경쟁사: {n}",own:"InBody 언급",alts:"다른 출처: {s}",owner_ph:"담당자",note_ph:"메모",tab_sum:"주간 요약",sum_h_new:"최근 7일간 발견된 고득점 공고 (70+)",sum_none:"최근 7일간 70점 이상 신규 공고가 없습니다.",sum_counts:"최근 7일간 발견된 관련 공고 수 (20점 이상): {n}",sum_src:"전체 출처 (최근 7일 신규 공고 순)",sum_new:"신규 (7일, 20점 이상)",sum_tot:"최근 실행에서 발견",sum_err:"오류",sum_fail:"3회 이상 연속 오류가 난 출처",streak:"{n}회 연속 오류",s_dis:"관련 없음으로 표시했습니다. 모두에게 숨겨집니다.",s_undis:"관련 없음 표시를 해제했습니다.",s_note_ok:"메모를 저장했습니다.",empty:"조건에 맞는 항목이 없습니다. 최소 점수를 낮추거나 검색어를 지워 보세요.",
 not_run:"아직 실행 안 됨",items_n:"{n}개 항목",remove:"삭제",remove_aria:"{n} 삭제",weight:"가중치",weight_aria:"가중치",add_term:"용어 추가",add:"추가",new_term:"새 용어",rm_term:"{t} 삭제",
 s_connect_star:"항목을 저장하려면 GitHub를 연결하세요. 저장한 항목은 팀 전체와 공유됩니다.",s_unstar:"저장을 해제했습니다.",s_star:"팀 전체에 저장했습니다.",
 s_starfail:"저장하지 못했습니다 ({e}). 토큰에 Contents: Read and write 권한이 필요합니다.",s_conflict:"다른 사람이 동시에 저장했습니다. 다시 시도하세요",
@@ -372,7 +378,12 @@ async function saveNote(i,box){
   catch(e){say(t("s_starfail",{e:e.message}))}}
 
 /* weekly summary (computed in the browser from data.json) */
+function renderKpi(){
+  const cut=new Date(Date.now()-7*864e5).toISOString().slice(0,10),ok=items.filter(i=>!dismissed[i.link]);
+  const v=[[ok.filter(i=>i.score>=20).length,"kpi_rel"],[ok.filter(i=>i.score>=70).length,"kpi_hot"],[ok.filter(i=>i.score>=20&&(i.first_seen||"")>=cut).length,"kpi_new"],[starred.size,"kpi_saved"]];
+  $("kpi").innerHTML=v.map(([n,k])=>`<div><b>${n}</b><span>${esc(t(k))}</span></div>`).join("")}
 function renderSum(){
+  renderKpi();
   const cut=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
   const nw=items.filter(i=>(i.first_seen||"")>=cut&&!dismissed[i.link]);
   const hot=nw.filter(i=>i.score>=70).sort((a,b)=>b.score-a.score);

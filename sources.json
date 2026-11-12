@@ -661,5 +661,12 @@
   "type": "ilan",
   "category": "Other",
   "insecure": true
+ },
+ {
+  "name": "ihaleilanlar.com - Medical devices",
+  "url": "https://ihaleilanlar.com/ihaleler/sektor/tibbi-cihaz-33",
+  "type": "list",
+  "category": "Other",
+  "section": "Tenders"
  }
 ]

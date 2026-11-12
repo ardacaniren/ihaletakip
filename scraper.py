@@ -302,6 +302,8 @@ def main():
             else:
                 soup = BeautifulSoup(get(s["url"], not s.get("insecure", False)), "html.parser")
                 found = tr_links(soup, s["url"]) if s["type"] == "tr" else list_links(soup, s["url"])
+            if s.get("section"):  # optional: treat everything on this page as e.g. tenders
+                found = {l: (v[0], s["section"]) for l, v in found.items()}
             health.append({"name": s["name"], "ok": True, "found": len(found), "streak": 0})
         except Exception as e:
             health.append({"name": s["name"], "ok": False, "error": short_err(e),

@@ -653,5 +653,11 @@
   "url": "https://ispartaism.saglik.gov.tr/",
   "type": "tr",
   "category": "Provincial"
+ },
+ {
+  "name": "ilan.gov.tr - Official tenders",
+  "url": "https://www.ilan.gov.tr/ilan/tum-ilanlar",
+  "type": "ilan",
+  "category": "Other"
  }
 ]

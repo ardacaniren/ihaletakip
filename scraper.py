@@ -248,6 +248,41 @@ def add_translations(rows, limit=100):
             break
 
 
+ILAN_API = "https://www.ilan.gov.tr/api/api/services/app/Ad/AdsByFilter"
+ILAN_QUERIES = ["vücut analiz", "vücut kompozisyon", "inbody", "biyoimpedans", "vücut analizi cihazı"]
+
+
+def ilan_links(src):
+    """ilan.gov.tr (official announcement portal): keyword search in the tender category (ats=3).
+    Returns ({link: (title, section)}, {link: published_date})."""
+    found, pub = {}, {}
+    hdr = {"accept": "text/plain", "content-type": "application/json-patch+json",
+           "origin": "https://www.ilan.gov.tr", "referer": "https://www.ilan.gov.tr/ilan/tum-ilanlar",
+           "user-agent": H.get("User-Agent", "Mozilla/5.0")}
+    last = None
+    for q in src.get("queries") or ILAN_QUERIES:
+        try:
+            r = requests.post(ILAN_API, headers=hdr, timeout=(8, 25),
+                              json={"keys": {"q": [q], "ats": [3]}, "skipCount": 0, "maxResultCount": 50})
+            r.raise_for_status()
+            ads = (r.json().get("result") or {}).get("ads") or []
+        except Exception as e:
+            last = e
+            continue
+        for a in ads:
+            url = a.get("urlStr")
+            if not url:
+                continue
+            link = "https://www.ilan.gov.tr" + url
+            title = " - ".join(x for x in (a.get("advertiserName"), a.get("title")) if x)
+            found[link] = (title, "Tenders")
+            pub[link] = (a.get("publishStartDate") or "")[:10] or None
+        time.sleep(1)
+    if not found and last:
+        raise last
+    return found, pub
+
+
 def main():
     sources = json.load(open("sources.json", encoding="utf-8"))
     old = json.load(open("data.json", encoding="utf-8")) if os.path.exists("data.json") else {}
@@ -255,8 +290,12 @@ def main():
     health, budget = [], 150  # max detail pages per run; the rest is picked up next run
     for s in sources:
         try:
-            soup = BeautifulSoup(get(s["url"], not s.get("insecure", False)), "html.parser")
-            found = tr_links(soup, s["url"]) if s["type"] == "tr" else list_links(soup, s["url"])
+            extra = {}
+            if s["type"] == "ilan":
+                found, extra = ilan_links(s)
+            else:
+                soup = BeautifulSoup(get(s["url"], not s.get("insecure", False)), "html.parser")
+                found = tr_links(soup, s["url"]) if s["type"] == "tr" else list_links(soup, s["url"])
             health.append({"name": s["name"], "ok": True, "found": len(found)})
         except Exception as e:
             health.append({"name": s["name"], "ok": False, "error": short_err(e)})
@@ -264,7 +303,7 @@ def main():
         for link, (title, section) in found.items():
             if link in items:
                 continue
-            pub, files, dv = None, [], 0
+            pub, files, dv = extra.get(link), [], 0
             if s["type"] == "tr":
                 if budget <= 0:
                     continue

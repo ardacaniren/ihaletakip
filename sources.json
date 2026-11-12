@@ -45,7 +45,8 @@
   "name": "TÜSEB - Announcements",
   "url": "https://www.tuseb.gov.tr/tr/duyurular",
   "type": "list",
-  "category": "Research & grants"
+  "category": "Research & grants",
+  "insecure": true
  },
  {
   "name": "TÜBİTAK - Support programs",
@@ -62,12 +63,6 @@
  {
   "name": "Medikal News",
   "url": "https://www.medikalnews.com/",
-  "type": "list",
-  "category": "News"
- },
- {
-  "name": "Pharma Turkey",
-  "url": "https://pharmaturkey.com/",
   "type": "list",
   "category": "News"
  },

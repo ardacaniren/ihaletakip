@@ -244,7 +244,8 @@
   "name": "9 Eylül BAP",
   "url": "https://bap.deu.edu.tr/tr/",
   "type": "list",
-  "category": "University BAP"
+  "category": "University BAP",
+  "insecure": true
  },
  {
   "name": "Ege BAP",

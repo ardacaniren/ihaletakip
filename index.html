@@ -51,6 +51,9 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 .save{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--red);padding:10px 0;margin-top:16px;display:flex;gap:12px;align-items:center}
 @media (max-width:640px){.add{grid-template-columns:1fr}.item{grid-template-columns:50px 1fr}.ring{width:46px;height:46px;font-size:16px}}
 .files details{display:inline}.files summary{display:inline;cursor:pointer;color:var(--red);font-size:13px}
+.badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;border:1px solid currentColor;margin-right:6px}.badge.comp{color:#b45309}.badge.own{color:#2e7d32}
+.notes{display:flex;gap:6px;margin-top:6px}.notes input{font:inherit;font-size:13px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;min-width:0}.notes .own{width:110px}.notes .nt{flex:1}
+#sum h3{margin:18px 0 6px}#sum ul{padding-left:18px;margin:4px 0}
 </style>
 </head>
 <body>
@@ -61,7 +64,7 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 <details id="tokbox"><summary data-i18n="tok_sum"></summary>
 <p data-i18n="tok_help"></p>
 <input type="password" id="tok" placeholder="github_pat_…" aria-label="GitHub token"> <button id="savetok" data-i18n="tok_save"></button> <button id="cleartok" data-i18n="tok_clear"></button></details>
-<nav class="tabs"><button class="on" data-p="opps" data-i18n="tab_opps"></button><button data-p="saved" id="savedtab"></button><button data-p="srcs" data-i18n="tab_srcs"></button><button data-p="kws" data-i18n="tab_kws"></button></nav>
+<nav class="tabs"><button class="on" data-p="opps" data-i18n="tab_opps"></button><button data-p="saved" id="savedtab"></button><button data-p="srcs" data-i18n="tab_srcs"></button><button data-p="kws" data-i18n="tab_kws"></button><button data-p="sum" data-i18n="tab_sum"></button></nav>
 
 <section id="opps">
 <div class="types" id="types" role="group" data-i18n-aria="types_aria"></div>
@@ -69,8 +72,10 @@ td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top;
 <select id="min" data-i18n-aria="min_aria"><option value="0" data-i18n="min_all"></option><option value="20" selected data-n="20"></option><option value="40" data-n="40"></option><option value="60" data-n="60"></option><option value="70" data-n="70"></option></select>
 <select id="cat" data-i18n-aria="cat_aria"></select><select id="src" data-i18n-aria="src_aria"></select><select id="st" data-i18n-aria="st_aria"></select>
 <select id="sort" data-i18n-aria="sort_aria"><option value="score" data-i18n="sort_score"></option><option value="published" data-i18n="sort_published"></option><option value="found" data-i18n="sort_found"></option></select></div>
-<div class="count" id="count"></div><p><button id="exp" data-i18n="exp"></button></p><div id="list"></div><p><button id="more" hidden data-i18n="more"></button></p>
+<div class="count" id="count"></div><p><button id="exp" data-i18n="exp"></button> <label class="meta"><input type="checkbox" id="showdis"> <span data-i18n="show_dis"></span></label></p><div id="list"></div><p><button id="more" hidden data-i18n="more"></button></p>
 </section>
+
+<section id="sum" hidden><div id="sumbody"></div></section>
 
 <section id="srcs" hidden>
 <p class="meta" data-i18n="srcs_help"></p>
@@ -111,7 +116,7 @@ saved_note:"{n} kayıtlı. Kayıtlı öğeler tüm ekiple paylaşılır.",matchi
 orig:"Türkçe orijinal: ",translating:"Çevriliyor…",unavail:"Çeviri yok, Türkçe gösteriliyor",
 meta_pub:"yayın {d}",meta_unk:"yayın tarihi bilinmiyor",meta_found:"bulundu {d}",nodate:"Tarih yok",matched:"eşleşen: ",ko_sum:"한국어 요약: henüz bağlı değil",
 star_rm:"Kayıtlılardan çıkar",star_add:"Bu öğeyi kaydet",star_on:"Tüm ekip için kayıtlı",star_off:"Tüm ekip için kaydet",files_more:"+{n} dosya daha",
-exp:"Listeyi CSV olarak indir",empty:"Bu filtrelerle eşleşen yok. Minimum puanı düşürün veya aramayı temizleyin.",
+exp:"Listeyi CSV olarak indir",dis_on:"İlgisiz olarak işaretle (herkes için gizlenir)",dis_off:"İlgisiz işaretini kaldır",show_dis:"İlgisiz işaretlenenleri göster",comp:"Rakip: {n}",own:"InBody geçiyor",alts:"ayrıca: {s}",owner_ph:"Sorumlu",note_ph:"Not",tab_sum:"Haftalık özet",sum_h_new:"Son 7 günde bulunan yüksek puanlı ilanlar (70+)",sum_none:"Son 7 günde 70+ puanlı yeni ilan yok.",sum_counts:"Son 7 günde bulunan ilgili ilan sayısı (puan 20+): {n}",sum_src:"En çok yeni ilan getiren kaynaklar",sum_fail:"Üst üste 3+ taramada hata veren kaynaklar",streak:"{n} taramadır hata",s_dis:"İlgisiz olarak işaretlendi, herkes için gizlendi.",s_undis:"İlgisiz işareti kaldırıldı.",s_note_ok:"Not kaydedildi.",empty:"Bu filtrelerle eşleşen yok. Minimum puanı düşürün veya aramayı temizleyin.",
 not_run:"henüz çalışmadı",items_n:"{n} öğe",remove:"Kaldır",remove_aria:"{n} kaynağını kaldır",weight:"ağırlık",weight_aria:"Ağırlık",add_term:"Terim ekle",add:"Ekle",new_term:"Yeni terim",rm_term:"{t} terimini kaldır",
 s_connect_star:"Öğeleri kaydetmek için GitHub'a bağlanın. Kayıtlı öğeler tüm ekiple paylaşılır.",s_unstar:"Kayıtlılardan çıkarıldı.",s_star:"Tüm ekip için kaydedildi.",
 s_starfail:"Kaydedilemedi ({e}). Token'ın Contents: Read and write izni olmalı.",s_conflict:"Başka biri aynı anda kaydetti, tekrar deneyin",
@@ -142,7 +147,7 @@ saved_note:"{n} saved. Saved items are shared with the whole team.",matching:"{n
 orig:"Turkish original: ",translating:"Translating…",unavail:"Translation unavailable, showing Turkish",
 meta_pub:"published {d}",meta_unk:"publish date unknown",meta_found:"found {d}",nodate:"No date",matched:"matched: ",ko_sum:"한국어 요약: not connected yet",
 star_rm:"Remove from saved",star_add:"Save this item",star_on:"Saved for the whole team",star_off:"Save for the whole team",files_more:"+{n} more files",
-exp:"Download list as CSV",empty:"Nothing matches these filters. Lower the minimum score or clear the search.",
+exp:"Download list as CSV",dis_on:"Mark as not relevant (hidden for everyone)",dis_off:"Remove not-relevant mark",show_dis:"Show items marked not relevant",comp:"Competitor: {n}",own:"Mentions InBody",alts:"also in: {s}",owner_ph:"Owner",note_ph:"Note",tab_sum:"Weekly summary",sum_h_new:"High-scoring items found in the last 7 days (70+)",sum_none:"No new items scoring 70+ in the last 7 days.",sum_counts:"Relevant items found in the last 7 days (score 20+): {n}",sum_src:"Sources with the most new items",sum_fail:"Sources failing 3 or more runs in a row",streak:"failing for {n} runs",s_dis:"Marked as not relevant, hidden for everyone.",s_undis:"Not-relevant mark removed.",s_note_ok:"Note saved.",empty:"Nothing matches these filters. Lower the minimum score or clear the search.",
 not_run:"not run yet",items_n:"{n} items",remove:"Remove",remove_aria:"Remove {n}",weight:"weight",weight_aria:"Weight",add_term:"Add a term",add:"Add",new_term:"New term",rm_term:"Remove {t}",
 s_connect_star:"Connect GitHub to save items. Saved items are shared with the whole team.",s_unstar:"Removed from saved.",s_star:"Saved for the whole team.",
 s_starfail:"Could not save ({e}). The token needs Contents: Read and write.",s_conflict:"someone else saved at the same time, try again",
@@ -173,7 +178,7 @@ saved_note:"{n}개 저장됨. 저장한 항목은 팀 전체와 공유됩니다.
 orig:"터키어 원문: ",translating:"번역 중…",unavail:"번역 불가, 터키어로 표시",
 meta_pub:"게시 {d}",meta_unk:"게시일 알 수 없음",meta_found:"발견 {d}",nodate:"날짜 없음",matched:"일치: ",ko_sum:"한국어 요약: 아직 연결되지 않음",
 star_rm:"저장 해제",star_add:"이 항목 저장",star_on:"팀 전체에 저장됨",star_off:"팀 전체에 저장",files_more:"파일 {n}개 더 보기",
-exp:"목록을 CSV로 다운로드",empty:"조건에 맞는 항목이 없습니다. 최소 점수를 낮추거나 검색어를 지워 보세요.",
+exp:"목록을 CSV로 다운로드",dis_on:"관련 없음으로 표시 (모두에게 숨김)",dis_off:"관련 없음 표시 해제",show_dis:"관련 없음으로 표시한 항목 보기",comp:"경쟁사: {n}",own:"InBody 언급",alts:"다른 출처: {s}",owner_ph:"담당자",note_ph:"메모",tab_sum:"주간 요약",sum_h_new:"최근 7일간 발견된 고득점 공고 (70+)",sum_none:"최근 7일간 70점 이상 신규 공고가 없습니다.",sum_counts:"최근 7일간 발견된 관련 공고 수 (20점 이상): {n}",sum_src:"신규 공고가 가장 많은 출처",sum_fail:"3회 이상 연속 오류가 난 출처",streak:"{n}회 연속 오류",s_dis:"관련 없음으로 표시했습니다. 모두에게 숨겨집니다.",s_undis:"관련 없음 표시를 해제했습니다.",s_note_ok:"메모를 저장했습니다.",empty:"조건에 맞는 항목이 없습니다. 최소 점수를 낮추거나 검색어를 지워 보세요.",
 not_run:"아직 실행 안 됨",items_n:"{n}개 항목",remove:"삭제",remove_aria:"{n} 삭제",weight:"가중치",weight_aria:"가중치",add_term:"용어 추가",add:"추가",new_term:"새 용어",rm_term:"{t} 삭제",
 s_connect_star:"항목을 저장하려면 GitHub를 연결하세요. 저장한 항목은 팀 전체와 공유됩니다.",s_unstar:"저장을 해제했습니다.",s_star:"팀 전체에 저장했습니다.",
 s_starfail:"저장하지 못했습니다 ({e}). 토큰에 Contents: Read and write 권한이 필요합니다.",s_conflict:"다른 사람이 동시에 저장했습니다. 다시 시도하세요",
@@ -214,7 +219,8 @@ const tok=()=>{try{return localStorage.getItem("gh_token")||""}catch(e){return "
 const hdr=()=>{const h={Accept:"application/vnd.github+json"};if(tok())h.Authorization="Bearer "+tok();return h};
 const say=m=>{$("runstat").textContent=m};
 const TYPES=["bid","ann","news","grants"];
-let lastRows=[],type="all",savedOnly=false,starred=new Set();
+let lastRows=[],type="all",savedOnly=false,starred=new Set(),dismissed={},notes={};
+const COMP=["tanita","seca","omron","biospace","jawon","charder","bodystat","impedimed","akern","maltron","bodygram","medi-body"];
 const fold=s=>String(s).replace(/İ/g,"i").replace(/I/g,"ı").toLowerCase().replace(/[ışğüöç]/g,c=>({"ı":"i","ş":"s","ğ":"g","ü":"u","ö":"o","ç":"c"})[c]);
 const BID_T=/\b(ihale|satin al|alim|teklif|sartname|yaklasik maliyet|dogrudan temin|pazarlik)/,BID_F=/sartname|ihale|teklif/,NOT_BID=/personel|sozlesmeli|memur|kadro|yedek|isci/;
 const FILE_KEY=/vucut|analiz|inbody|bia|kompozisyon|sartname|teklif/;
@@ -253,22 +259,25 @@ function applyLang(){
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
   savedOnly=b.dataset.p==="saved";const show=savedOnly?"opps":b.dataset.p;
-  ["opps","srcs","kws"].forEach(p=>$(p).hidden=p!==show);shown=50;renderOpps();});
+  ["opps","srcs","kws","sum"].forEach(p=>$(p).hidden=p!==show);shown=50;renderOpps();});
 function markDirty(f){dirty.add(f);$("savebar").hidden=false;setDirty()}
 
 /* opportunities */
 function setStatus(i,v){saved[items[i].link]=v;try{localStorage.setItem("status",JSON.stringify(saved))}catch(e){}renderOpps()}
 function renderOpps(){
-  const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value;
-  const base=items.map((it,i)=>({it,i})).filter(({it})=>(savedOnly?starred.has(it.link):it.score>=min)&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
+  const q=$("q").value.toLocaleLowerCase("tr"),min=+$("min").value,cat=$("cat").value,src=$("src").value,st=$("st").value,sd=$("showdis").checked;
+  const base0=items.map((it,i)=>({it,i})).filter(({it})=>(sd||!dismissed[it.link])&&(savedOnly?starred.has(it.link):it.score>=min)&&(!cat||it.category===cat)&&(!src||it.source===src)&&(!st||(saved[it.link]||STATUSES[0])===st)&&[it.title,it.title_en,it.title_ko].join(" ").toLocaleLowerCase("tr").includes(q))
     .sort(SORTS[$("sort").value]);
+  const seen=new Map(),base=[];
+  for(const r of base0){const k=fold(r.it.title).replace(/[^a-z0-9]/g,"");const f=seen.get(k);
+    if(f){if(f.it.source!==r.it.source&&!f.alts.includes(r.it.source))f.alts.push(r.it.source)}else{r.alts=[];seen.set(k,r);base.push(r)}}
   const cnt={all:base.length};TYPES.forEach(k=>cnt[k]=0);base.forEach(({it})=>cnt[typeOf(it)]++);
   $("types").innerHTML=["all",...TYPES].map(k=>`<button data-t="${k}" class="${k===type?"on":""}" aria-pressed="${k===type}">${esc(t("ty_"+k))}<small>${cnt[k]}</small></button>`).join("");
   const rows=type==="all"?base:base.filter(({it})=>typeOf(it)===type);
   lastRows=rows;
   $("count").textContent=savedOnly?t("saved_note",{n:rows.length}):t("matching",{n:rows.length,m:min,t:items.length});
   $("savedtab").textContent=t("tab_saved",{n:starred.size});$("more").hidden=rows.length<=shown;
-  $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i})=>{const cur=saved[it.link]||STATUSES[0];
+  $("list").innerHTML=rows.length?rows.slice(0,shown).map(({it,i,alts})=>{const cur=saved[it.link]||STATUSES[0];
     const star=starred.has(it.link);
     const fs=[...it.files].sort((a,b)=>FILE_KEY.test(fold(b.name))-FILE_KEY.test(fold(a.name)));
     const fl=f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`;
@@ -279,12 +288,15 @@ function renderOpps(){
     ${lang!=="tr"?`<div class="meta" lang="tr">${hasTr?esc(t("orig"))+esc(it.title):esc(tfail.has(lang+"|"+it.link)?t("unavail"):t("translating"))}</div>`:""}
     <div class="meta">${esc(t("ty_"+typeOf(it)))}, ${esc(it.source)}, ${it.published?esc(t("meta_pub",{d:fmt(it.published)})):esc(t("meta_unk"))}, ${esc(t("meta_found",{d:fmt(it.first_seen)}))}</div>
     ${(it.matched||[]).length?`<div class="note">${esc(t("matched"))}${esc(it.matched.join(", "))}</div>`:""}
+    ${(()=>{const m=(it.matched||[]).map(x=>String(x).replace(/ \(in file\)$/,"").toLowerCase());const c=COMP.filter(x=>m.includes(x));
+      return (c.length?`<span class="badge comp">${esc(t("comp",{n:c.join(", ")}))}</span>`:"")+(m.includes("inbody")?`<span class="badge own">${esc(t("own"))}</span>`:"")+((alts||[]).length?`<span class="meta">${esc(t("alts",{s:alts.join(", ")}))}</span>`:"")})()}
     ${it.score>=70?`<div class="ko" lang="ko">${esc(t("ko_sum"))}</div>`:""}
-    <div class="foot"><div class="files"><button class="star" onclick="toggleStar(${i})" aria-label="${esc(t(star?"star_rm":"star_add"))}" aria-pressed="${star}" title="${esc(t(star?"star_on":"star_off"))}">${star?"★":"☆"}</button>${files}</div>
+    <div class="notes"><input class="own" value="${esc((notes[it.link]||{}).owner||"")}" placeholder="${esc(t("owner_ph"))}" aria-label="${esc(t("owner_ph"))}" onchange="saveNote(${i},this.parentNode)"><input class="nt" value="${esc((notes[it.link]||{}).note||"")}" placeholder="${esc(t("note_ph"))}" aria-label="${esc(t("note_ph"))}" onchange="saveNote(${i},this.parentNode)"></div>
+    <div class="foot"><div class="files"><button class="star" onclick="toggleStar(${i})" aria-label="${esc(t(star?"star_rm":"star_add"))}" aria-pressed="${star}" title="${esc(t(star?"star_on":"star_off"))}">${star?"★":"☆"}</button><button class="star" onclick="toggleDismiss(${i})" aria-label="${esc(t(dismissed[it.link]?"dis_off":"dis_on"))}" aria-pressed="${!!dismissed[it.link]}" title="${esc(t(dismissed[it.link]?"dis_off":"dis_on"))}">⊘</button>${files}</div>
     <select aria-label="${esc(t("st_aria"))}" onchange="setStatus(${i},this.value)">${STATUSES.map(s=>`<option value="${esc(s)}"${s===cur?" selected":""}>${esc(lab("st_",s))}</option>`).join("")}</select></div></div></article>`}).join(""):`<p class="empty">${esc(t("empty"))}</p>`;
-  fillMissing(rows.slice(0,shown));
+  fillMissing(rows.slice(0,shown));renderSum();
 }
-["q","min","cat","src","st","sort"].forEach(id=>$(id).addEventListener("input",()=>{shown=50;renderOpps()}));$("more").onclick=()=>{shown+=50;renderOpps()};
+["q","min","cat","src","st","sort","showdis"].forEach(id=>$(id).addEventListener("input",()=>{shown=50;renderOpps()}));$("more").onclick=()=>{shown+=50;renderOpps()};
 
 /* CSV export of the currently filtered list (UTF-8 with BOM so Excel reads Turkish and Korean) */
 $("exp").onclick=()=>{
@@ -298,7 +310,7 @@ $("exp").onclick=()=>{
 /* sources */
 function renderSrcs(){$("srows").innerHTML=sources.map((s,i)=>{const h=health[s.name];
   return `<tr><td><b>${esc(s.name)}</b><br><a class="meta" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td><td>${esc(s.type)}</td><td>${esc(lab("cat_",s.category))}</td>
-  <td>${h?(h.ok?`<span class="ok">${esc(t("items_n",{n:h.found}))}</span>`:`<span class="bad">${esc(h.error)}</span>`):esc(t("not_run"))}</td><td><button onclick="delSrc(${i})" aria-label="${esc(t("remove_aria",{n:s.name}))}">${esc(t("remove"))}</button></td></tr>`}).join("")}
+  <td>${h?(h.ok?`<span class="ok">${esc(t("items_n",{n:h.found}))}</span>`:`<span class="bad">${esc(h.error)}</span>`):esc(t("not_run"))}${h&&h.streak>=3?` <span class="bad">⚠ ${esc(t("streak",{n:h.streak}))}</span>`:""}</td><td><button onclick="delSrc(${i})" aria-label="${esc(t("remove_aria",{n:s.name}))}">${esc(t("remove"))}</button></td></tr>`}).join("")}
 function delSrc(i){sources.splice(i,1);markDirty("sources");renderSrcs()}
 $("aadd").onclick=()=>{let u;try{u=new URL($("aurl").value.trim())}catch(e){alert(t("al_url"));return}
   if(sources.some(s=>s.url===u.href)){alert(t("al_dup"));return}
@@ -321,28 +333,56 @@ async function putFile(path,obj){const u=API+"/contents/"+path,cur=await(await f
   const r=await fetch(u,{method:"PUT",headers:hdr(),body:JSON.stringify({message:"Update "+path+" from dashboard",content:b64(JSON.stringify(obj,null,1)),sha:cur.sha,branch:"main"})});
   if(!r.ok)throw new Error("HTTP "+r.status)}
 
-/* stars (shared through starred.json in the repository) */
-async function saveStar(link,on){
+/* shared flags: starred.json, dismissed.json, notes.json in the repository */
+async function saveShared(file,mut){
   for(let a=0;a<3;a++){
-    const u=API+"/contents/starred.json";const r=await fetch(u,{headers:hdr()});let sha,obj={items:{}};
+    const u=API+"/contents/"+file;const r=await fetch(u,{headers:hdr()});let sha,obj={items:{}};
     if(r.status===200){const c=await r.json();sha=c.sha;obj=JSON.parse(decodeURIComponent(escape(atob(c.content.replace(/\n/g,"")))))}
     else if(r.status!==404)throw new Error("HTTP "+r.status);
-    obj.items=obj.items||{};if(on)obj.items[link]={at:new Date().toISOString()};else delete obj.items[link];
-    const body={message:"Star update from dashboard",content:b64(JSON.stringify(obj,null,1)),branch:"main"};if(sha)body.sha=sha;
+    obj.items=obj.items||{};mut(obj.items);
+    const body={message:"Update "+file+" from dashboard",content:b64(JSON.stringify(obj,null,1)),branch:"main"};if(sha)body.sha=sha;
     const w=await fetch(u,{method:"PUT",headers:hdr(),body:JSON.stringify(body)});
     if(w.ok)return;if(w.status!==409&&w.status!==422)throw new Error("HTTP "+w.status)}
   throw new Error(t("s_conflict"))}
+const saveStar=(link,on)=>saveShared("starred.json",o=>{if(on)o[link]={at:new Date().toISOString()};else delete o[link]});
+async function readShared(f){
+  if(tok()){try{const r=await fetch(API+"/contents/"+f+"?ref=main",{headers:{...hdr(),Accept:"application/vnd.github.raw+json"}});
+    if(r.ok)return(await r.json()).items||{};if(r.status===404)return{}}catch(e){}}
+  try{return(await jget(f)).items||{}}catch(e){return{}}}
+async function loadStars(){const[s,d,n]=await Promise.all([readShared("starred.json"),readShared("dismissed.json"),readShared("notes.json")]);starred=new Set(Object.keys(s));dismissed=d;notes=n}
 async function toggleStar(i){
   const link=items[i].link;
   if(!tok()){$("tokbox").open=true;say(t("s_connect_star"));return}
   const was=starred.has(link);was?starred.delete(link):starred.add(link);renderOpps();
   try{await saveStar(link,!was);say(t(was?"s_unstar":"s_star"))}
   catch(e){was?starred.add(link):starred.delete(link);renderOpps();say(t("s_starfail",{e:e.message}))}}
-async function loadStars(){
-  try{const r=await fetch(API+"/contents/starred.json?ref=main",{headers:{...hdr(),Accept:"application/vnd.github.raw+json"}});
-    if(r.ok){starred=new Set(Object.keys((await r.json()).items||{}));return}
-    if(r.status===404){starred=new Set();return}}catch(e){}
-  try{starred=new Set(Object.keys((await jget("starred.json")).items||{}))}catch(e){}}
+async function toggleDismiss(i){
+  const it=items[i],link=it.link;
+  if(!tok()){$("tokbox").open=true;say(t("s_connect_star"));return}
+  const was=!!dismissed[link],prev=dismissed[link];
+  if(was)delete dismissed[link];else dismissed[link]={at:new Date().toISOString(),title:it.title};renderOpps();
+  try{await saveShared("dismissed.json",o=>{if(was)delete o[link];else o[link]={at:new Date().toISOString(),title:it.title}});say(t(was?"s_undis":"s_dis"))}
+  catch(e){if(was)dismissed[link]=prev;else delete dismissed[link];renderOpps();say(t("s_starfail",{e:e.message}))}}
+async function saveNote(i,box){
+  const link=items[i].link;
+  if(!tok()){$("tokbox").open=true;say(t("s_connect_star"));return}
+  const owner=box.querySelector(".own").value.trim(),note=box.querySelector(".nt").value.trim();
+  try{await saveShared("notes.json",o=>{if(owner||note)o[link]={owner,note,at:new Date().toISOString()};else delete o[link]});
+    if(owner||note)notes[link]={owner,note};else delete notes[link];say(t("s_note_ok"))}
+  catch(e){say(t("s_starfail",{e:e.message}))}}
+
+/* weekly summary (computed in the browser from data.json) */
+function renderSum(){
+  const cut=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
+  const nw=items.filter(i=>(i.first_seen||"")>=cut&&!dismissed[i.link]);
+  const hot=nw.filter(i=>i.score>=70).sort((a,b)=>b.score-a.score);
+  const by={};nw.filter(i=>i.score>=20).forEach(i=>by[i.source]=(by[i.source]||0)+1);
+  const top=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const bad=Object.values(health).filter(h=>(h.streak||0)>=3);
+  $("sumbody").innerHTML=`<p>${esc(t("sum_counts",{n:nw.filter(i=>i.score>=20).length}))}</p>
+  <h3>${esc(t("sum_h_new"))}</h3>${hot.length?`<ul>${hot.map(i=>`<li><b>${i.score}</b> <a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(tt(i))}</a> <span class="meta">${esc(i.source)}</span></li>`).join("")}</ul>`:`<p class="meta">${esc(t("sum_none"))}</p>`}
+  ${top.length?`<h3>${esc(t("sum_src"))}</h3><ul>${top.map(([s,n])=>`<li>${esc(s)}: ${n}</li>`).join("")}</ul>`:""}
+  ${bad.length?`<h3>${esc(t("sum_fail"))}</h3><ul>${bad.map(h=>`<li>${esc(h.name)}: ${esc(t("streak",{n:h.streak}))}</li>`).join("")}</ul>`:""}`}
 
 /* data */
 async function jget(f){const r=await fetch(f+"?"+Date.now());if(!r.ok)throw 0;return r.json()}

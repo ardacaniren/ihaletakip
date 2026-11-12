@@ -262,7 +262,7 @@ def ilan_links(src):
     last = None
     for q in src.get("queries") or ILAN_QUERIES:
         try:
-            r = requests.post(ILAN_API, headers=hdr, timeout=(8, 25),
+            r = requests.post(ILAN_API, headers=hdr, timeout=(8, 25), verify=not src.get("insecure", False),
                               json={"keys": {"q": [q], "ats": [3]}, "skipCount": 0, "maxResultCount": 50})
             r.raise_for_status()
             ads = (r.json().get("result") or {}).get("ads") or []

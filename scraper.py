@@ -283,10 +283,16 @@ def ilan_links(src):
     return found, pub
 
 
+def title_key(t):
+    """Same title posted twice (other source, repost) -> same key."""
+    return re.sub(r"[^a-z0-9]", "", norm(t))
+
+
 def main():
     sources = json.load(open("sources.json", encoding="utf-8"))
     old = json.load(open("data.json", encoding="utf-8")) if os.path.exists("data.json") else {}
     items = {i["link"]: i for i in old.get("items", [])}
+    oldh = {h["name"]: h for h in old.get("sources", [])}
     health, budget = [], 150  # max detail pages per run; the rest is picked up next run
     for s in sources:
         try:
@@ -296,9 +302,10 @@ def main():
             else:
                 soup = BeautifulSoup(get(s["url"], not s.get("insecure", False)), "html.parser")
                 found = tr_links(soup, s["url"]) if s["type"] == "tr" else list_links(soup, s["url"])
-            health.append({"name": s["name"], "ok": True, "found": len(found)})
+            health.append({"name": s["name"], "ok": True, "found": len(found), "streak": 0})
         except Exception as e:
-            health.append({"name": s["name"], "ok": False, "error": short_err(e)})
+            health.append({"name": s["name"], "ok": False, "error": short_err(e),
+                           "streak": oldh.get(s["name"], {}).get("streak", 0) + 1})
             continue
         for link, (title, section) in found.items():
             if link in items:
@@ -349,8 +356,17 @@ def main():
         except Exception:
             it["doc_tries"] = it.get("doc_tries", 0) + 1
         time.sleep(1)
+    dismissed = set()
+    if os.path.exists("dismissed.json"):  # items the team marked "not relevant" in the dashboard
+        try:
+            dj = json.load(open("dismissed.json", encoding="utf-8")).get("items", {})
+            dismissed = {title_key(v.get("title", "")) for v in dj.values() if v.get("title")}
+        except Exception:
+            pass
     for it in items.values():  # re-score everything so keyword edits apply to old items
         it["score"], it["matched"] = score(it["title"], it["section"], it["files"], it.get("doc_hits", ()), it.get("doc_chars", 0))
+        if dismissed and title_key(it["title"]) in dismissed:
+            it["score"] = max(0, it["score"] - 50)
     add_translations(list(items.values()))
     rows = sorted(items.values(), key=lambda i: i["published"] or i["first_seen"], reverse=True)[:3000]
     new = {"items": rows, "sources": health}

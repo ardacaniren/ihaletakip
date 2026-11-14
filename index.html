@@ -206,6 +206,11 @@ try{lang=localStorage.getItem("lang")||"tr";if(!I18N[lang])lang="tr"}catch(e){}
 const t=(k,v)=>{let s=(I18N[lang]&&I18N[lang][k])??I18N.en[k]??k;if(v)for(const x in v)s=s.split("{"+x+"}").join(v[x]);return s};
 const lab=(p,s)=>(I18N[lang][p+s]??I18N.en[p+s]??s);
 const LOC={tr:"tr-TR",en:"en-GB",ko:"ko-KR"};
+/* source names are stored in English; show them in the selected language (stored name stays the key) */
+const SRC_SUF=[[" - Medical devices services","Tıbbi cihaz hizmetleri","의료기기 서비스"],[" - Medical devices","Tıbbi cihazlar","의료기기"],[" - Purchase notices","Satın alma ilanları","구매 공고"],[" - Purchasing","Satın alma","구매"],[" - Announcements","Duyurular","공지"],[" - News","Haberler","뉴스"],[" - Support programs","Destek programları","지원 프로그램"],[" - Official tenders","Resmi ilanlar","공식 입찰 공고"]];
+function sn(n){n=String(n);if(lang==="en")return n;const k=lang==="tr"?1:2;
+  const m=n.match(/^(.*) Provincial Health Directorate$/);if(m)return m[1]+(lang==="tr"?" İl Sağlık Müdürlüğü":" 지방 보건국");
+  for(const s of SRC_SUF)if(n.endsWith(s[0]))return n.slice(0,-s[0].length)+" - "+s[k];return n}
 let tcache={},tfail=new Set();
 try{tcache=JSON.parse(localStorage.getItem("tcache")||"{}")}catch(e){}
 const tt=it=>lang==="tr"?it.title:(it["title_"+lang]||tcache[lang+"|"+it.link]||it.title);
@@ -250,7 +255,7 @@ const SORTS={score:(a,b)=>b.it.score-a.it.score||dkey(b.it).localeCompare(dkey(a
 function fillSelects(){
   const pc=$("cat").value,ps=$("src").value,pt=$("st").value,pa=$("acat").value;
   $("cat").innerHTML=opts(t("all_cat"),catList,c=>lab("cat_",c));
-  $("src").innerHTML=opts(t("all_src"),srcList);
+  $("src").innerHTML=opts(t("all_src"),srcList,sn);
   $("st").innerHTML=opts(t("all_st"),STATUSES,s=>lab("st_",s));
   $("acat").innerHTML=CATS.map(c=>`<option value="${esc(c)}">${esc(lab("cat_",c))}</option>`).join("");
   $("cat").value=pc;$("src").value=ps;$("st").value=pt;if(pa)$("acat").value=pa}
@@ -295,10 +300,10 @@ function renderOpps(){
     return `<article class="item ${it.score>=70?"hot":""}"><div class="ring">${it.score}</div><div>
     <h2 class="t" lang="${lang}"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(tt(it))}</a></h2>
     ${lang!=="tr"?`<div class="meta" lang="tr">${hasTr?esc(t("orig"))+esc(it.title):esc(tfail.has(lang+"|"+it.link)?t("unavail"):t("translating"))}</div>`:""}
-    <div class="meta">${esc(t("ty_"+typeOf(it)))}, ${esc(it.source)}, ${it.published?esc(t("meta_pub",{d:fmt(it.published)})):esc(t("meta_unk"))}, ${esc(t("meta_found",{d:fmt(it.first_seen)}))}</div>
+    <div class="meta">${esc(t("ty_"+typeOf(it)))}, ${esc(sn(it.source))}, ${it.published?esc(t("meta_pub",{d:fmt(it.published)})):esc(t("meta_unk"))}, ${esc(t("meta_found",{d:fmt(it.first_seen)}))}</div>
     ${(it.matched||[]).length?`<div class="note">${esc(t("matched"))}${esc(it.matched.join(", "))}</div>`:""}
     ${(()=>{const m=(it.matched||[]).map(x=>String(x).replace(/ \(in file\)$/,"").toLowerCase());const c=COMP.filter(x=>m.includes(x));
-      return (c.length?`<span class="badge comp">${esc(t("comp",{n:c.join(", ")}))}</span>`:"")+(m.includes("inbody")?`<span class="badge own">${esc(t("own"))}</span>`:"")+((alts||[]).length?`<span class="meta">${esc(t("alts",{s:alts.join(", ")}))}</span>`:"")})()}
+      return (c.length?`<span class="badge comp">${esc(t("comp",{n:c.join(", ")}))}</span>`:"")+(m.includes("inbody")?`<span class="badge own">${esc(t("own"))}</span>`:"")+((alts||[]).length?`<span class="meta">${esc(t("alts",{s:alts.map(sn).join(", ")}))}</span>`:"")})()}
     ${it.score>=70?`<div class="ko" lang="ko">${esc(t("ko_sum"))}</div>`:""}
     <div class="notes"><input class="own" value="${esc((notes[it.link]||{}).owner||"")}" placeholder="${esc(t("owner_ph"))}" aria-label="${esc(t("owner_ph"))}" onchange="saveNote(${i},this.parentNode)"><input class="nt" value="${esc((notes[it.link]||{}).note||"")}" placeholder="${esc(t("note_ph"))}" aria-label="${esc(t("note_ph"))}" onchange="saveNote(${i},this.parentNode)"></div>
     <div class="foot"><div class="files"><button class="star" onclick="toggleStar(${i})" aria-label="${esc(t(star?"star_rm":"star_add"))}" aria-pressed="${star}" title="${esc(t(star?"star_on":"star_off"))}">${star?"★":"☆"}</button><button class="star" onclick="toggleDismiss(${i})" aria-label="${esc(t(dismissed[it.link]?"dis_off":"dis_on"))}" aria-pressed="${!!dismissed[it.link]}" title="${esc(t(dismissed[it.link]?"dis_off":"dis_on"))}">⊘</button>${files}</div>
@@ -321,12 +326,12 @@ let editI=-1;
 function renderSrcs(){$("srows").innerHTML=sources.map((s,i)=>{const h=health[s.name];
   const st=h?(h.ok?`<span class="ok">${esc(t("items_n",{n:h.found}))}</span>`:`<span class="bad">${esc(h.error)}</span>`):esc(t("not_run"));
   const wb=h&&h.streak>=3?` <span class="bad">⚠ ${esc(t("streak",{n:h.streak}))}</span>`:"";
-  if(i===editI)return `<tr><td><b>${esc(s.name)}</b><br><input id="e_url" value="${esc(s.url)}" aria-label="URL" style="width:100%"></td>
+  if(i===editI)return `<tr><td><b>${esc(sn(s.name))}</b><br><input id="e_url" value="${esc(s.url)}" aria-label="URL" style="width:100%"></td>
   <td><select id="e_type" aria-label="${esc(t("th_type"))}">${["tr","list","ilan"].map(x=>`<option${x===s.type?" selected":""}>${x}</option>`).join("")}</select></td>
   <td><select id="e_cat" aria-label="${esc(t("th_cat"))}">${CATS.map(c=>`<option value="${esc(c)}"${c===s.category?" selected":""}>${esc(lab("cat_",c))}</option>`).join("")}</select></td>
   <td>${st}${wb}</td><td><button class="pri" onclick="saveSrc(${i})">${esc(t("row_ok"))}</button> <button onclick="editSrc(-1)">${esc(t("row_cancel"))}</button></td></tr>`;
-  return `<tr><td><b>${esc(s.name)}</b><br><a class="meta" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td><td>${esc(s.type)}</td><td>${esc(lab("cat_",s.category))}</td>
-  <td>${st}${wb}</td><td><button onclick="editSrc(${i})" aria-label="${esc(t("edit_aria",{n:s.name}))}">${esc(t("edit"))}</button> <button onclick="delSrc(${i})" aria-label="${esc(t("remove_aria",{n:s.name}))}">${esc(t("remove"))}</button></td></tr>`}).join("")}
+  return `<tr><td><b>${esc(sn(s.name))}</b><br><a class="meta" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td><td>${esc(s.type)}</td><td>${esc(lab("cat_",s.category))}</td>
+  <td>${st}${wb}</td><td><button onclick="editSrc(${i})" aria-label="${esc(t("edit_aria",{n:sn(s.name)}))}">${esc(t("edit"))}</button> <button onclick="delSrc(${i})" aria-label="${esc(t("remove_aria",{n:sn(s.name)}))}">${esc(t("remove"))}</button></td></tr>`}).join("")}
 function editSrc(i){editI=i;renderSrcs()}
 function saveSrc(i){let u;try{u=new URL($("e_url").value.trim());if(!/^https?:$/.test(u.protocol))throw 0}catch(e){alert(t("al_url"));return}
   if(sources.some((s,j)=>j!==i&&s.url===u.href)){alert(t("al_dup"));return}
@@ -402,7 +407,7 @@ function kpiItems(k){
   return (k==="kpi_saved"?items:ok).filter(f).sort((a,b)=>b.score-a.score||dkey(b).localeCompare(dkey(a)))}
 function openKpi(k){
   const rows=kpiItems(k);$("dlgt").textContent=t(k)+" ("+rows.length+")";$("dlgx").setAttribute("aria-label",t("close"));
-  $("dlgb").innerHTML=rows.length?`<ul>${rows.map(i=>`<li><b>${i.score}</b> <a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(tt(i))}</a><br><span class="meta">${esc(i.source)}, ${i.published?esc(t("meta_pub",{d:fmt(i.published)})):esc(t("meta_unk"))}, ${esc(t("meta_found",{d:fmt(i.first_seen)}))}</span></li>`).join("")}</ul>`:`<p class="meta">${esc(t("dlg_empty"))}</p>`;
+  $("dlgb").innerHTML=rows.length?`<ul>${rows.map(i=>`<li><b>${i.score}</b> <a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(tt(i))}</a><br><span class="meta">${esc(sn(i.source))}, ${i.published?esc(t("meta_pub",{d:fmt(i.published)})):esc(t("meta_unk"))}, ${esc(t("meta_found",{d:fmt(i.first_seen)}))}</span></li>`).join("")}</ul>`:`<p class="meta">${esc(t("dlg_empty"))}</p>`;
   const d=$("dlg");if(d.showModal){if(!d.open)d.showModal()}else d.setAttribute("open","")}
 $("kpi").onclick=e=>{const b=e.target.closest("button");if(b)openKpi(b.dataset.k)};
 $("dlgx").onclick=()=>$("dlg").close();
@@ -417,9 +422,9 @@ function renderSum(){
   const all=names.map(n=>({n,new:by[n]||0,h:health[n]})).sort((a,b)=>b.new-a.new||a.n.localeCompare(b.n));
   const bad=Object.values(health).filter(h=>(h.streak||0)>=3);
   $("sumbody").innerHTML=`<p>${esc(t("sum_counts",{n:nw.filter(i=>i.score>=20).length}))}</p>
-  <h3>${esc(t("sum_h_new"))}</h3>${hot.length?`<ul>${hot.map(i=>`<li><b>${i.score}</b> <a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(tt(i))}</a> <span class="meta">${esc(i.source)}</span></li>`).join("")}</ul>`:`<p class="meta">${esc(t("sum_none"))}</p>`}
-  ${all.length?`<h3>${esc(t("sum_src"))}</h3><table><thead><tr><th>${esc(t("th_name"))}</th><th>${esc(t("sum_new"))}</th><th>${esc(t("sum_tot"))}</th></tr></thead><tbody>${all.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.new}</td><td>${r.h?(r.h.ok?r.h.found:`<span class="bad">${esc(t("sum_err"))}</span>`):"–"}</td></tr>`).join("")}</tbody></table>`:""}
-  ${bad.length?`<h3>${esc(t("sum_fail"))}</h3><ul>${bad.map(h=>`<li>${esc(h.name)}: ${esc(t("streak",{n:h.streak}))}</li>`).join("")}</ul>`:""}`}
+  <h3>${esc(t("sum_h_new"))}</h3>${hot.length?`<ul>${hot.map(i=>`<li><b>${i.score}</b> <a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(tt(i))}</a> <span class="meta">${esc(sn(i.source))}</span></li>`).join("")}</ul>`:`<p class="meta">${esc(t("sum_none"))}</p>`}
+  ${all.length?`<h3>${esc(t("sum_src"))}</h3><table><thead><tr><th>${esc(t("th_name"))}</th><th>${esc(t("sum_new"))}</th><th>${esc(t("sum_tot"))}</th></tr></thead><tbody>${all.map(r=>`<tr><td>${esc(sn(r.n))}</td><td>${r.new}</td><td>${r.h?(r.h.ok?r.h.found:`<span class="bad">${esc(t("sum_err"))}</span>`):"–"}</td></tr>`).join("")}</tbody></table>`:""}
+  ${bad.length?`<h3>${esc(t("sum_fail"))}</h3><ul>${bad.map(h=>`<li>${esc(sn(h.name))}: ${esc(t("streak",{n:h.streak}))}</li>`).join("")}</ul>`:""}`}
 
 /* data */
 async function jget(f){const r=await fetch(f+"?"+Date.now());if(!r.ok)throw 0;return r.json()}

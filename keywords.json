@@ -192,6 +192,13 @@
     "ilaç alım",
     "aşı"
    ]
+  },
+  "c_test": {
+   "label": "test",
+   "weight": 20,
+   "terms": [
+    "test"
+   ]
   }
  }
 }

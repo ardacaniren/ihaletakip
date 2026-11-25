@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tender Tracker</title>
-<link rel="icon" href="logo.png">
+<link rel="icon" href="symbol.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
@@ -18,7 +18,7 @@ body{margin:0;min-height:100vh;color:var(--ink);background:linear-gradient(180de
 .band .wrap{padding-bottom:18px}
 header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-top:26px}
 .brand{display:flex;gap:16px;align-items:center}
-.plate{flex:none;display:grid;place-items:center;padding:9px 16px;border-radius:10px;background:linear-gradient(180deg,#fff,#dfe4e8);border:1px solid #fff;box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(0,0,0,.45)}.plate img{display:block;height:30px;width:auto}
+.sym{flex:none;width:52px;height:52px;border-radius:50%;box-shadow:0 3px 10px rgba(0,0,0,.5),0 0 0 2px rgba(255,255,255,.85)}.plate{flex:none;display:grid;place-items:center;padding:9px 16px;border-radius:10px;background:linear-gradient(180deg,#fff,#dfe4e8);border:1px solid #fff;box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(0,0,0,.45)}.plate img{display:block;height:30px;width:auto}
 h1{margin:0;font-size:36px;line-height:1.05;font-weight:300;letter-spacing:-.01em;color:#fff}
 .sub{color:#aeb7bf;margin:4px 0 16px;font-size:14px;font-weight:400}
 .lang{display:flex;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden;flex:none}.lang button{border:0;border-radius:0;background:none;color:#cfd6dc;padding:6px 12px;box-shadow:none}.lang button:hover{background:rgba(255,255,255,.12);color:#fff}.lang button.on,.lang button.on:hover{background:linear-gradient(180deg,var(--red-h),var(--red) 55%,var(--red-d));color:#fff}
@@ -73,7 +73,7 @@ td{padding:9px 8px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top;
 .chip{display:inline-flex;gap:6px;align-items:center;background:linear-gradient(180deg,#fff,#e9edf0);border:1px solid var(--rule);border-radius:20px;padding:0 4px 0 11px;margin:0 6px 6px 0;font-size:13px}
 .chip button{border:0;background:none;box-shadow:none;padding:0 6px;font-size:16px;line-height:1.3;color:var(--mute)}.chip button:hover{background:none;color:var(--red)}
 .save{position:sticky;bottom:0;background:var(--brushed),var(--gunmetal);color:#fff;border-top:3px solid var(--red);padding:12px 18px;margin-top:16px;display:flex;gap:12px;align-items:center;border-radius:10px 10px 0 0;box-shadow:0 -6px 18px rgba(20,24,28,.2)}
-@media (max-width:640px){.add{grid-template-columns:1fr}.item{grid-template-columns:68px 1fr;gap:12px;padding:16px 14px}.ring b{font-size:26px}.ring i{width:56px}h1{font-size:28px}header{flex-direction:column;gap:12px}.plate{padding:7px 12px}.plate img{height:24px}.brand{align-items:flex-start}.sub{margin-bottom:6px}}
+@media (max-width:640px){.add{grid-template-columns:1fr}.item{grid-template-columns:68px 1fr;gap:12px;padding:16px 14px}.ring b{font-size:26px}.ring i{width:56px}h1{font-size:28px}header{flex-direction:column;gap:12px}.sym{width:44px;height:44px}.brand{align-items:flex-start}.sub{margin-bottom:6px}}
 .files details{display:inline}.files summary{display:inline;cursor:pointer;color:var(--red);font-size:13px}
 .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;border:1px solid currentColor;margin-right:6px}.badge.comp{color:#b45309}.badge.own{color:#1f7a3e}
 .notes{display:flex;gap:6px;margin-top:8px}.notes input{font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--rule);border-radius:6px;min-width:0}.notes .own{width:110px}.notes .nt{flex:1}
@@ -93,7 +93,7 @@ dialog#dlg{width:min(720px,94vw);max-height:80vh;border:1px solid var(--rule);bo
 </head>
 <body>
 <div class="band"><div class="wrap">
-<header><div class="brand"><span class="plate"><img src="logo.png" alt="InBody" width="360" height="103"></span><div><h1 id="ttl" data-i18n="title"></h1><p class="sub" id="upd"></p></div></div>
+<header><div class="brand"><img class="sym" src="symbol.png" alt="InBody" width="96" height="96"><div><h1 id="ttl" data-i18n="title"></h1><p class="sub" id="upd"></p></div></div>
 <div class="lang" role="group" data-i18n-aria="lang_aria"><button data-l="tr">Türkçe</button><button data-l="en">English</button><button data-l="ko">한국어</button></div></header>
 <div class="tools"><button class="pri" id="run" data-i18n="update"></button><span id="runstat" aria-live="polite"></span></div>
 </div></div>
@@ -131,6 +131,7 @@ dialog#dlg{width:min(720px,94vw);max-height:80vh;border:1px solid var(--rule);bo
 </section>
 <div class="save" id="savebar" hidden><span id="dirty"></span><button class="pri" id="save" data-i18n="save_update"></button></div>
 <p class="meta" style="margin-top:30px" data-i18n="footer"></p>
+<img src="logo.png" alt="InBody" width="90" height="26" style="display:block;opacity:.85;margin-top:6px">
 </div>
 <script>
 const REPO="ardacaniren/ihaletakip",API="https://api.github.com/repos/"+REPO;

@@ -1,0 +1,36 @@
+name: digest
+on:
+  schedule:
+    - cron: "11 6 * * *"   # 09:11 Türkiye saati, her gün
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: digest
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python digest.py
+      - name: Open an issue when there are new relevant notices (GitHub e-mails it)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f digest.md ] || { echo "no new relevant notices, no mail"; exit 0; }
+          gh issue create --title "$(cat digest_title.txt)" --body-file digest.md
+          git config user.name "scraper-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add digest_sent.json
+          git commit -m "daily digest sent"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin main && git push && exit 0
+            sleep 5
+          done
+          exit 1

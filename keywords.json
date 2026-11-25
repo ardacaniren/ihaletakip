@@ -11,8 +11,6 @@
     "vücut yağ analiz",
     "vücut yağ ölçüm",
     "vücut yağ",
-    "vücut sıvı",
-    "vücut su",
     "vücut kütle",
     "yağsız vücut",
     "iskelet kas",
@@ -190,14 +188,12 @@
     "sertifikalı eğitim",
     "sarf malzeme",
     "ilaç alım",
-    "aşı"
-   ]
-  },
-  "c_test": {
-   "label": "test",
-   "weight": 20,
-   "terms": [
-    "test"
+    "aşı",
+    "veteriner",
+    "medikal gaz",
+    "su arıtma",
+    "açılış",
+    "izleme ve değerlendirme"
    ]
   }
  }

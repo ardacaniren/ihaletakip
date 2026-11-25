@@ -53,6 +53,9 @@ def score(title, section, files, doc_hits=(), doc_chars=0):
     for name in DOC_CATS:  # precise signal: words found INSIDE the attached specification files
         cat = KW["categories"].get(name)
         dh = [t for t in doc_hits if cat and t in cat["terms"]]
+        # a single generic word inside an attachment is not a product signal; brand names and 2+ distinct terms are
+        if name == "product" and len(set(dh)) < 2 and not any(norm(t) in ("inbody", "body composition") for t in dh):
+            dh = []
         if dh:
             if name not in got:
                 total += cat["weight"]
@@ -60,6 +63,8 @@ def score(title, section, files, doc_hits=(), doc_chars=0):
             got.add(name)
     if doc_chars > 500 and not got.intersection(DOC_CATS):
         total -= 30  # files were read and nothing InBody-like is in them
+    if not got.intersection(DOC_CATS):
+        total = min(total, 60)  # no product/brand/body-metric signal: 70+ is reserved for real product matches
     return max(0, min(100, total)), matched
 
 
